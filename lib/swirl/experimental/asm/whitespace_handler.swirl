@@ -15,4 +15,4 @@
 %: swirl_whitespace_handler_body('begin`) {:r:rest} -> {}
 %: swirl_whitespace_handler_body('end`) {::rest} -> {}
 %: swirl_whitespace_handler_body('between lines`) {:r:rest} -> {'::get_newline`}
-%: swirl_whitespace_handler_body('within line`) {:r:rest} -> {{''`}:r{'``}}
+%: swirl_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}

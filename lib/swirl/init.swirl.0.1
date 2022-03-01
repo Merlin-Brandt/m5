@@ -79,9 +79,9 @@
 %: rest {::anychar::rest}
 
 
-%: raise_quote(:r:rest) -> {{''`}:r{'``}}
+%: raise_quote(:r:rest) -> {«'»:r«`»}
 %: raise_quote2(:r:rest) -> {::raise_quote(::raise_quote(:r))}
-%: raise_braced_quote(:r:rest) -> {'{`{''`}:r{'``}'}`}
+%: raise_braced_quote(:r:rest) -> {'{`«'»:r«`»'}`}
 
 %: -> {'
    %: `::cwd'//init//whitespace_handler.swirl 
@@ -103,7 +103,7 @@
    %: until_:name (undefine) {}
    %: until_:name'_not` (undefine) {}
    %: until_:name {}
-   %: until_:name {{'::until_`}:name'_not`'::anychar::until_`:name}  
+   %: until_:name {«::until_»:name'_not`'::anychar::until_`:name}  
    %: until_:name'_not` (not) {:r}
 }
 
@@ -111,7 +111,7 @@
    %: up_to_:name (undefine) {}
    %: up_to_:name'_not` (undefine) {}
    %: up_to_:name {:r}
-   %: up_to_:name {{'::up_to_`}:name'_not`'::anychar::up_to_`:name}  
+   %: up_to_:name {«::up_to_»:name'_not`'::anychar::up_to_`:name}  
    %: up_to_:name'_not` (not) {:r}
 }
 
@@ -132,8 +132,8 @@
 %: balanced_curly_inner {'{`::balanced_curly_inner'}`::balanced_curly_inner}
 %: balanced_curly_inner {::not_brace::anychar::balanced_curly_inner}
 %: not_brace {::not_brace_begin::not_brace_end}
-%: not_brace_begin (not) {{'{`}}
-%: not_brace_end (not) {{'}`}}
+%: not_brace_begin (not) {«{»}
+%: not_brace_end (not) {«}»}
 
 %: copy(:x:rest) {} -> {:x}
 
@@ -162,10 +162,10 @@
 
 %: _activate_rule_with_flag(:feature_ident:alnum_s,:flag:rest) {} -> {
     %: init_use_feature_:feature_ident {}
-    %: init_use_feature_:feature_ident {{'::`}:feature_ident'::init_use_feature_`:feature_ident}
-    %: init_use_feature_:feature_ident {{'::init_not_`}:feature_ident'::anychar::init_use_feature_`:feature_ident}
-    %: init_not_:feature_ident (not) {{'::`}:feature_ident}
-    %: :flag {{'::init_use_feature_`}:feature_ident}
+    %: init_use_feature_:feature_ident {«::»:feature_ident'::init_use_feature_`:feature_ident}
+    %: init_use_feature_:feature_ident {«::init_not_»:feature_ident'::anychar::init_use_feature_`:feature_ident}
+    %: init_not_:feature_ident (not) {«::»:feature_ident}
+    %: :flag {«::init_use_feature_»:feature_ident}
 }
 
 %: assert('t`) {}

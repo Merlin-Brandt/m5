@@ -36,7 +36,7 @@
    
    / swap defined state of metatime_true /
 
-   '%:`  {{'::`}metatime_true {''(uid) (2348796298)``}} -> {
+   '%:`  {«::»metatime_true «'(uid) (2348796298)`»} -> {
       %'':`` metatime_true (clear) {}
    } (catch unknown rule) {
       %'':`` metatime_true (clear) {}
@@ -47,7 +47,7 @@
 
 / warning: the rule, if it exists, must have the form %: rule {} /
 %: metatime_bool_expr {rule :name:alnum_s exists} -> {
-   %':`  {{'::`}:name {''(uid) (2346283497)``}} -> {
+   %':`  {«::»:name «'(uid) (2346283497)`»} -> {
       %'':`` metatime_true (clear) {}
       %'':`` metatime_true {}
    } (catch unknown rule) {
@@ -110,11 +110,11 @@
    %: metatime_verbose_flag {}
    %: metatime_verbose_flag {v}
    %: metatime_verbose_flag {verbose }
-   %: metatime_eval(:vf:metatime_verbose_flag'`syntax' ` :rulename:alnum_s = :mp:maybe_param :combination:rule_combination .:rest:continue_eval) -> {{'
+   %: metatime_eval(:vf:metatime_verbose_flag'`syntax' ` :rulename:alnum_s = :mp:maybe_param :combination:rule_combination .:rest:continue_eval) -> {«
       / here, :combination will be reparsed just to be passed to ::structured_rule @9263738/
-      %: {::structured_rule(`}:vf'`:rulename{' = '`}:mp :combination{'`)}
-      `}:rest{'
-   `}}
+      %: {::structured_rule(»:vf'`:rulename« = '»:mp :combination«`)}
+      »:rest«
+   »}
 
    %: metatime_eval(raw' ` :code:swirl_quote_value .:rest:continue_eval) -> {
       :code
@@ -124,7 +124,7 @@
 }
 
 %: metatime_eval(append :value:c_quote_value to set :name:alnum_s.:rest:continue_eval) -> {
-   %: :name {{''`}:value{'``}}
+   %: :name {«'»:value«`»}
    :rest
 }
 
@@ -136,7 +136,7 @@
 %: metatime_eval(append :value:c_quote_value to string :name:alnum_s.:rest:continue_eval) -> {
    %: -> {
       %: (undefine) :name {}
-      %: :name -> {{'::`}:name{''`}:value{'``}}
+      %: :name -> {«::»:name«'»:value«`»}
    }
    :rest
 }
@@ -144,14 +144,14 @@
 %: metatime_eval(string :name:alnum_s = string :other:alnum_s.:rest:continue_eval) -> {
    %: (undefine) :name {}
    %: -> {
-      %: :name -> {{'{''`}`}{'::`}:other{'{'``}`}}
+      %: :name -> {««'»»«::»:other««`»»}
    }
    :rest
 }
 
 %: metatime_eval(string :name:alnum_s = :value:c_quote_value.:rest:continue_eval) -> {
    %: (undefine) :name {}
-   %: :name -> {{''`}:value{'``}}
+   %: :name -> {«'»:value«`»}
    :rest
 }
 
@@ -177,7 +177,7 @@
 %: metatime_bool_expr {(:code_a:metatime_bool_expr :op:metatime_bool_op :code_b:metatime_bool_expr)} -> {
       / evaluate both codes and store the result in metatime_a and metatime_b as string "true" or "false" /
       :code_a
-      %':` {{'::`}metatime_true {''(uid) (8937649574)``}} -> {
+      %':` {«::»metatime_true «'(uid) (8937649574)`»} -> {
          %':` metatime_a (clear) {}
          %':` metatime_a {} -> {true}
       } (catch unknown rule) {
@@ -187,7 +187,7 @@
       } (uid) (8937649574)
 
       :code_b
-      %':`  {{'::`}metatime_true {''(uid) (348756292347)``}} -> {
+      %':`  {«::»metatime_true «'(uid) (348756292347)`»} -> {
          %':` metatime_b (clear) {}
          %':` metatime_b {} -> {true}
       } (catch unknown rule) {
@@ -204,11 +204,11 @@
 / The rule identifier X is defined to be a *namespace* /
 / And all rule identifiers X_Y* are "namespace children" of X. /
 %: metatime_bool_expr {namespace :name:alnum_s exists} -> {
-   %':` {{'::`}metatime_bool_expr} (rule :name exists and rule :name'__swirl_namespace_convention` exists)
+   %':` {«::»metatime_bool_expr} (rule :name exists and rule :name'__swirl_namespace_convention` exists)
 }
 
 %: metatime_bool_expr {namespace :name:alnum_s has tag :tag:alnum_s} -> {
-   %: {{'::`}metatime_bool_expr} (namespace :name exists and rule :name'__swirl_tag_`:tag exists)
+   %: {«::»metatime_bool_expr} (namespace :name exists and rule :name'__swirl_tag_`:tag exists)
 }
 
 %: metatime_eval(clear flag :name:alnum_s'.`::nwh:code:continue_eval) {} -> {
@@ -228,7 +228,7 @@
 
 %: metatime_eval(assert :bool_eval:metatime_bool_expr or throw :message:alnum_s.:code:continue_eval) {} -> {
    :bool_eval
-   %':` {{'::`}metatime_true {''(uid) (9273629276)``}} -> {} (catch unknown rule) {
+   %':` {«::»metatime_true «'(uid) (9273629276)`»} -> {} (catch unknown rule) {
       '::throw_`:message
       %: { (uid) (9273629276)} -> {},
    } (uid) (9273629276)
@@ -261,42 +261,42 @@
 %: metatime_eval(toplevel :name:alnum_s (work at :namespace:alnum_s).:c:continue_eval) {} -> {
    :tmprule:copy(:namespace'_toplevel_`:name)
 
-   '%:` {{'::`}metatime_eval(
+   '%:` {«::»metatime_eval(
       assert namespace :namespace has tag workspace or throw invalid_workspace.
       assert not rule :tmprule exists or throw internal_error_2463827.
    )}
 
    %: :tmprule {}
-   %: :tmprule {{'::`}anychar'::`:tmprule}
-   %: :tmprule {{'::`}:name'::`:tmprule}
+   %: :tmprule {«::»anychar'::`:tmprule}
+   %: :tmprule {«::»:name'::`:tmprule}
 
-   %: (syntax) {{'::`}:tmprule}
+   %: (syntax) {«::»:tmprule}
 
    :c
 }
 
 %: metatime_eval(::1nwh:r:rest) -> {
-   %: {{'::`}metatime_eval({''`}:r{'``})}
+   %: {«::»metatime_eval(«'»:r«`»)}
 }
 
 %: metatime_eval() -> {}
 
 %: continue_eval {:r:rest::assert_empty(:r)}
 %: continue_eval {:r:rest} -> {
-   %: '{::`metatime_eval({{''`}:r{'``}})'}`
+   %: '{::`metatime_eval({«'»:r«`»})'}`
 }
 %: continue_eval_at_once {:r:rest} -> {::metatime_eval(:r)}
 
 %: metatime_syntax {
    %: compile meta::1nwh:r:rest
 } -> {
-   %: {'{:s:metatime_eval('`}:r{'`)}`}
+   %: «{:s:metatime_eval('»:r«`)}»
 }
 
 %: metatime_syntax {
    %: meta! {:i:balanced_curly_inner}
 } -> {
-   %: {'{::metatime_eval('`}:i{'`)}`}
+   %: «{::metatime_eval('»:i«`)}»
 }
 
 %: {::activate_rule(metatime_syntax)}

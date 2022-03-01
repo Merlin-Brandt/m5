@@ -20,7 +20,7 @@
 
 %: expect(false:r:rest) {} -> {
    %: -> {
-      %: {{'::throw_`}:r}
+      %: {«::throw_»:r}
    }
 }
 %: expect(true::rest) {} -> {}
@@ -62,7 +62,7 @@
 
 %: {::swirl_rule_invoc} -> {} :rule:invoc
 %: {::swirl_header({})!} -> {} {:hello:world this is a 'header`}!
-%: {::swirl_rule_def} -> {} %: (flag) consumed_rule -> {'lmao}`} (catch unknown rule) {{''`}}
+%: {::swirl_rule_def} -> {} %: (flag) consumed_rule -> {'lmao}`} (catch unknown rule) {«'»}
 %: test_consumption (not) {::consumed_rule}
 %: {::test_consumption}
 

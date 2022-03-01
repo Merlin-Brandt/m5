@@ -159,7 +159,7 @@ pub fn match_invocation_string_pass<'b>(
 
 #[test]
 fn test_match_invocation_string() {
-    /*let (_, rule_head) = match_invocation_string_def("{I have.::n1:number:n2:number.:apples......::number}", '{', '}').unwrap();
+    /*let (_, rule_head) = match_invocation_string_def("{I have.::n1:number:n2:number.:apples......::number}", '«, '}').unwrap();
     let rule_head = rule_head.unwrap();
 
     assert_eq!(rule_head, {
@@ -174,7 +174,7 @@ fn test_match_invocation_string() {
 }
 
 /// matches a rule header definition (including {}) or a rule body definition,
-/// if input does not start with '{', no error is returned but just None.
+/// if input does not start with '«, no error is returned but just None.
 pub fn match_invocation_string_def<'a>(input: &'a Input, rules: &Rules, wrap_begin: char, wrap_end: char, whitespace_handling_rule: &str)
         -> MatchResult<(&'a Input, Option<InvocationString>)> {
     let mut invocation_string = InvocationString::new();

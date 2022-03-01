@@ -27,8 +27,8 @@ pub static mut BRACES: Option<Braces> = None;
 
 pub fn init_braces() {
     let mut braces = Braces::new();
-    braces.push_braces(("{'", "`}")).unwrap();
     braces.push_braces(("'", "`")).unwrap();
+    braces.push_braces(("«", "»")).unwrap();
     unsafe {
         BRACES = Some(braces);
     }

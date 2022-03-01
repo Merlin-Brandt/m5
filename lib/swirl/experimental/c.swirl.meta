@@ -74,12 +74,12 @@ vsyntax storage_class_specifier = {auto}
     or { ( } ({::identifier})* { ) }
 )*
                       
-.raw {'
+.raw «
     %; identifier (suppress_error) {_}
     %; identifier (suppress_error) {::aZ}
     %; identifier (suppress_error) {_::alnum_s}
     %; identifier {::aZ::alnum_s}
-`}
+»
 
 
 
