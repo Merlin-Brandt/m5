@@ -1,0 +1,19 @@
+%: init_swirl {}
+%: init_swirl_0_1 {}
+%: init_swirl_0_1_1 {}
+%: swirlcl (predefined) {::throw_predefined_rule}
+%: swirlcl (predefined) {::throw_predefined_rule}
+%: swirl_ident (predefined) {::throw_predefined_rule}
+%: swirl_rule_invoc (predefined) {::throw_predefined_rule}
+%: swirl_var (predefined) {::throw_predefined_rule}
+%: swirl_quote (predefined) {::throw_predefined_rule}
+%: swirl_quote_value (predefined) {::throw_predefined_rule}
+%: swirl_header (predefined) {::throw_predefined_rule}
+%: swirl_body (predefined) {::throw_predefined_rule}
+%: swirl_inner_rule_def (predefined) {::throw_predefined_rule}
+%: swirl_rule_def (predefined) {::throw_predefined_rule}
+%: swirl_file_invoc (predefined) {::throw_predefined_rule}
+%: swirl_print (predefined) {::throw_predefined_rule}
+%: swirl_rule_exists (predefined) {::throw_predefined_rule}
+%: swirl_verbose (predefined) {::throw_predefined_rule}
+%: {::swirl_quote}'{''`}`

@@ -1,0 +1,27 @@
+i wrote sth like
+
+%: get_command -> {
+    %: '{::rule` and words}
+}
+
+%: {::get_command}
+
+which returns
+
+%: {::rule and words
+
+and thus an unexpected error.
+
+took quite a while to find this...
+
+===========================================================
+
+wasted a lot of time searching where infinite loop is occurring
+then it showed it was related to CRLF linebreaks (since infite loop did not occur with identical input but LF instead of CRLF)
+still dont know why, CRLF is now unsupported :)
+
+===========================================================
+
+a rule did not recognize whitespace. 
+first examined a possible mistake with ::define_whitespace_handler.
+then found that ::1wh did not recognize tab characters.

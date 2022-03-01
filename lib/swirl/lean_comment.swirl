@@ -1,0 +1,40 @@
+%: {::groups_swirl}
+%: lean_comment_swirl {}
+%: lean_comments_swirl {}
+
+%: line_comment {/::anytextline/}
+%: anytextline {}
+%: anytextline {::not_slash::anychar::anytextline}
+%: not_slash (not) {/}
+
+%: (not) _remove_comments_not_closing {'}`}
+%: (not) _remove_comments_not_opening {'{`}
+%:  _remove_comments_not_brace {::_remove_comments_not_closing::_remove_comments_not_opening}
+
+%: _remove_comments {}
+%: _remove_comments {{::_remove_comments}::_remove_comments}
+%: _remove_comments {::_remove_comments_not_brace::_remove_comments_1::_remove_comments}
+%: _remove_comments_1 {::anychar}
+%: _remove_comments_1 {::line_comment} -> {}
+%: _remove_comments_1 {//} -> {/}
+
+%: remove_comments {{:r:_remove_comments}/remove_comments/} -> {:r}
+
+%: c_line_comment {//::c_anytextline}
+%: c_anytextline {}
+%: c_anytextline {::not_eol::anychar::c_anytextline}
+%: not_eol (not) {::newline}
+
+%: block_comment {/*::not_swirl_key::anyblocktext*/}
+%: anyblocktext {}
+%: anyblocktext {::not_closing_comment_brace::anychar::anyblocktext}
+%: not_closing_comment_brace (not) {*/}
+%: not_swirl_key (not) {%:}
+
+%: _remove_c_comments {}
+%: _remove_c_comments {::_remove_c_comments_1::_remove_c_comments}
+%: _remove_c_comments_1 {::anychar}
+%: _remove_c_comments_1 {::c_line_comment} -> {}
+%: _remove_c_comments_1 {::block_comment} -> {}
+
+%: remove_c_comments {::_remove_c_comments}

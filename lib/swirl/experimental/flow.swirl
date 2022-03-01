@@ -1,0 +1,21 @@
+%: (call) {::groups_swirl::lean_comment_swirl}
+%: flow_swirl {}
+
+
+%: inplace_notation {
+    (rule) ::nwh :variants:inplace_variants
+} {
+    :variants
+}
+%: inplace_variants {::inplace_variant}
+%: inplace_variants /is a tuple/ {::inplace_variant::nwh::inplace_variants}
+%: inplace_variant {
+    (::nwh :header:rule_header ::nwh :body:maybe_rule_body ::nwh)
+} {
+    {[.pair.[:header].pair.[:body].pair.]}
+}
+
+
+
+
+

@@ -1,0 +1,3 @@
+--implement wavefront .obj file loader in swirl--
+(which takes .obj as input and .c code as output, so its loading-including the file at compiletime)
+question: is it possible to implement a runtime-loader for c in swirl?

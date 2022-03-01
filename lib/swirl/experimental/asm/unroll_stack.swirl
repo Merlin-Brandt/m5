@@ -1,0 +1,41 @@
+%: no_opt {}
+
+%: stack_instr {push}
+%: stack_instr {pop}
+%: stack_instr_sign('push`) -> {+}
+%: stack_instr_sign('pop`) -> {-}
+%: stack_instr_esp_mod('push`) -> {sub esp}
+%: stack_instr_esp_mod('pop`) -> {add esp}
+
+%: unroll_stack_(::rest) { < / unroll stack > ::newline} -> {}
+%: unroll_stack_(:offset:uint) {:address:hex_uint': ` :instr:instr    :c:asm_comment ::newline :r:unroll_stack_(:offset)} -> {
+    :address': ` :instr :c
+    :r
+}
+%: unroll_stack_(:offset:uint) {
+    :address:hex_uint': ` pop' ` :e:expr :c:asm_comment ::newline
+    :e_n:expr_size(:e)
+    :r:unroll_stack_(::swirlcl(:offset - :e_n))
+    :PTR:ptr_from_size(:e_n)
+} -> {
+    :address': ` mov :e, :PTR [base + :offset] :c
+    :address': ` add esp, 0x:e_n
+    :r
+}
+
+%: unroll_stack_(:offset:uint) {
+    :address:hex_uint': ` push' ` :e:expr :c:asm_comment ::newline
+    :e_n:expr_size(:e)
+    :r:unroll_stack_(::swirlcl(:offset + :e_n))
+    :PTR:ptr_from_size(:e_n)
+} -> {
+    :address': ` sub esp, 0x:e_n
+    :address': ` mov :PTR [base - :offset], :e :c
+                 
+    :r
+}
+
+%: unroll_stack { < unroll stack > ::newline :r:unroll_stack_(0)} -> {
+    '0:       ` mov base, esp
+    :r    
+}.

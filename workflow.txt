@@ -1,0 +1,5 @@
+abstract syntax trees will help with debugging m5 rules.
+certain parsing errors are the result of deeper problems that can not be solved by reading the error message, but by viewing the syntax tree.
+ideal would be to view this syntax tree in a code editor like atom or visual code
+
+projectSkills=6,60,167,253,320,422,448,498,508,592,613,668,954,962,1101,1265,2124,2299

@@ -1,0 +1,282 @@
+%: init.swirl
+
+%; {::init_swirl_0_1}
+%; {::define_whitespace_handler('replace everywhere in header with ::nwh`)}
+
+
+%: compile meta
+
+vsyntax swirl_c_quote = { ::c_quote }.
+
+vsyntax translation_unit = ({::external_declaration} or {::pragma})*.
+vsyntax external_declaration = {::function_definition} or {::declaration}.
+vsyntax function_definition = {::declaration_specifiers }  {::declarator } {::declaration }* {::compound_statement}.
+
+vsyntax pragma = {#::line_rest }.
+
+vsyntax declaration_specifiers = ({::storage_class_specifier} or {::type_qualifier})* {::type_specifier} ({::storage_class_specifier} or {::type_qualifier})*.
+
+vsyntax declaration_specifier = {::storage_class_specifier} or {::type_specifier} or {::type_qualifier}.
+
+vsyntax storage_class_specifier = {auto}
+                        or {register}
+                        or {static}
+                        or {extern}
+                        or {typedef}
+
+.vsyntax type_specifier = {void}
+                   or {char}
+                   or {short}
+                   or {int}
+                   or {long}
+                   or {float}
+                   or {double}
+                   or {signed}
+                   or {unsigned}
+                   or { ::struct_or_union_specifier}
+                   or { ::enum_specifier}
+                   or { ::typedef_name}
+
+.vsyntax struct_or_union_specifier = { ::struct_or_union ::identifier '{` } { ::struct_declaration}+ { '}` } 
+                              or { ::struct_or_union '{` } { ::struct_declaration}+ { '}` } 
+                              or { ::struct_or_union ::identifier}
+
+.vsyntax struct_or_union = {struct}
+                    or {union}
+
+.vsyntax struct_declaration = {::specifier_qualifiers ::struct_declarator_list ; }
+
+.vsyntax specifier_qualifiers = {::type_qualifier }* {::type_specifier} { ::type_qualifier}*
+.vsyntax specifier_qualifier = { ::type_specifier}
+                        or { ::type_qualifier}
+
+.vsyntax struct_declarator_list = { ::struct_declarator} ({ ',` } { ::struct_declarator})*
+
+.vsyntax struct_declarator = { ::declarator}
+                      or { ::declarator} { ':` } { ::constant_expression}
+                      or { ':` } { ::constant_expression}
+
+.vsyntax declarator = ({ ::pointer})? { ::direct_declarator}
+
+.vsyntax pointer = { '*` } ({ ::type_qualifier})* ({ ::pointer})?
+
+.vsyntax type_qualifier = {const}
+                   or {volatile}
+                   or {short} or {long}
+                   or {unsigned} or {signed}
+                   or {__attribute__::balanced_parens}
+
+.vsyntax identifier_or_declarator = { ::identifier } or { ( ::declarator ) }
+
+.vsyntax direct_declarator = { ::identifier_or_declarator } (
+       { [ } ({ ::constant_expression})? { ] } 
+    or { ( } {::parameter_type_list} { ) } 
+    or { ( } ({::identifier})* { ) }
+)*
+                      
+.raw {'
+    %; identifier (suppress_error) {_}
+    %; identifier (suppress_error) {::aZ}
+    %; identifier (suppress_error) {_::alnum_s}
+    %; identifier {::aZ::alnum_s}
+`}
+
+
+
+
+
+.vsyntax COMMENT_138476 = { read c parsing documentation on how to correctly parse c expressions}
+
+.vsyntax constant_expression = { ::conditional_expression}
+
+.vsyntax conditional_expression = { ::logical_or_expression} ({ '?` } { ::expression} { ':` } { ::conditional_expression})?
+.vsyntax strict_conditional_expression =
+                              { ::logical_or_expression} { '?` } { ::expression} { ':` } { ::conditional_expression}
+
+.vsyntax logical_or_expression = { ::logical_and_expression} ({ '||` } { ::logical_and_expression})*
+.vsyntax strict_logical_or_expression = { ::logical_and_expression} ({ '||` } { ::logical_and_expression})+
+
+.vsyntax logical_and_expression = { ::inclusive_or_expression} ({ '&&` } { ::inclusive_or_expression})*
+
+.vsyntax inclusive_or_expression = { ::exclusive_or_expression} ({ '|` } { ::exclusive_or_expression})*
+
+.vsyntax exclusive_or_expression = { ::and_expression} ({ '^` } { ::and_expression})*
+
+.vsyntax and_expression = { ::equality_expression} ({ '&` ::equality_expression})*
+
+.vsyntax equality_expression = { ::relational_expression} (
+       { '==` } { ::relational_expression}
+    or { '!=` } { ::relational_expression}
+)*
+
+.vsyntax relational_expression = { ::shift_expression} (
+       { '<` ::shift_expression}
+    or { '>` ::shift_expression}
+    or { '<=` ::shift_expression}
+    or { '>=` ::shift_expression}
+)*
+
+.vsyntax shift_expression = { ::additive_expression} (
+       { '<<` ::additive_expression}
+    or { '>>` ::additive_expression}
+)*
+
+.vsyntax additive_expression = { ::multiplicative_expression} (
+       { '+` } { ::multiplicative_expression}
+    or { '-` } { ::multiplicative_expression}
+)*
+
+.vsyntax strict_additive_expression = { ::multiplicative_expression} (
+       { '+` } { ::multiplicative_expression}
+    or { '-` } { ::multiplicative_expression}
+)+
+
+.vsyntax multiplicative_expression = { ::cast_expression} (
+       { '*` } { ::cast_expression}
+    or { '/` } { ::cast_expression}
+    or { '%` } { ::cast_expression}
+)*
+
+.vsyntax cast_expression = { ::strict_cast_expression} or { ::unary_expression}
+
+.vsyntax strict_cast_expression = { '(` } { ::type_name} { ')` } { ::cast_expression}
+
+.vsyntax unary_expression = { ::postfix_expression}
+                     or { '++` } { ::unary_expression}
+                     or { '--` } { ::unary_expression}
+                     or { ::unary_operator} { ::cast_expression}
+                     or {sizeof} { ::unary_expression}
+                     or {sizeof} { ::type_name}
+
+.vsyntax postfix_expression = { ::primary_expression} (
+                                   { '[` } { ::expression} { ']` }
+                                or { ::argument_list}
+                                or { '.` } { ::identifier}
+                                or { '->` } { ::identifier}
+                                or { '++` } 
+                                or { '--` }
+                               )*
+
+.vsyntax primary_expression = { ::identifier}
+                       or { ::constant}
+                       or { ::string}
+                       or { '(` } { ::expression} { ')` } 
+
+.vsyntax constant = { ::floating_constant} or { ::integer_constant}
+             or { ::character_constant}
+             or { ::enumeration_constant}
+             or { ::string_literal} or { ::char_literal}
+
+.vsyntax string_literal = { ::swirl_c_quote }
+.vsyntax char_literal = {::simple_quote} ({\::anychar} or {::anychar}) {::simple_quote}
+
+.vsyntax c_sign = {+} or {-}
+.vsyntax floating_constant = ({::int}{.}{::uint}? or {::c_sign}?{.::uint}) ({'f`} or {'d`} or {'F`} or {'D`} or {})
+.vsyntax integer_constant = ({0x} {::hex_char}+) or {::int}
+.vsyntax hex_char = {::09} or {A} or {B} or {C} or {D} or {E} or {F} or {a} or {b} or {c} or {d} or {e} or {f}
+
+.vsyntax expression = { ::assignment_expression} ({ ',` } { ::assignment_expression})*
+
+.vsyntax COMMENT_23498 =  {todo: optimize this rule below}
+.vsyntax assignment_expression = { ::unary_expression} { ::assignment_operator} { ::assignment_expression}
+                          or { ::conditional_expression} 
+
+.vsyntax strict_assignment_expression = { ::unary_expression} { ::assignment_operator} { ::assignment_expression}
+
+.vsyntax assignment_operator = { '=` }
+                        or { '*=` } 
+                        or { '/=` } 
+                        or { '%=` } 
+                        or { '+=` } 
+                        or { '-=` } 
+                        or { '<<=` } 
+                        or { '>>=` } 
+                        or { '&=` } 
+                        or { '^=` } 
+                        or { '|=` } 
+
+                       
+.vsyntax unary_operator = { '&` } 
+                   or { '*` } 
+                   or { '+` } 
+                   or { '-` } 
+                   or { '~` }
+                   or { '!` }
+
+
+
+
+
+
+.vsyntax type_name = {::specifier_qualifiers} ({ ::abstract_declarator})?
+
+.vsyntax parameter_type_list = { ::parameter_list} { ',` '...` }?
+
+.vsyntax parameter_list = ({ ::parameter_declaration} { ',` ::parameter_declaration}*)?
+
+.vsyntax parameter_declaration = ({ ::declaration_specifier})+ { ::declarator}
+                          or ({ ::declaration_specifier})+ { ::abstract_declarator}
+                          or ({ ::declaration_specifier})+
+
+.vsyntax argument_list = { '(` } ({ ::assignment_expression,})* { ::assignment_expression} { ')` } or { '(` ')` }
+
+.vsyntax abstract_declarator = { ::pointer}
+                        or { ::pointer} { ::direct_abstract_declarator}
+                        or { ::direct_abstract_declarator}
+
+.vsyntax direct_abstract_declarator =  { '(` } { ::abstract_declarator} { ')` } 
+                               ({ '[` } ({ ::constant_expression})? { ']` } 
+                               or { '(` } ({ ::parameter_type_list})? { ')` })*
+
+.vsyntax enum_specifier = {enum} { ::identifier} { '{` } { ::enumerator_list} { '}` } 
+                   or {enum} { '{` } { ::enumerator_list} { '}` } 
+                   or {enum} { ::identifier}
+
+.vsyntax enumerator_list = { ::enumerator} ({ ',` } { ::enumerator})*
+
+.vsyntax enumerator = { ::identifier}
+               or { ::identifier} { '=` } { ::constant_expression}
+
+.vsyntax typedef_name = { ::identifier}
+
+.vsyntax declaration =  {::declaration_specifiers} { ::init_declarators} { ';` } 
+
+.vsyntax init_declarators = { ::init_declarator} ({ ',` ::init_declarator})*
+.vsyntax init_declarator = { ::declarator} ({ '=` } { ::initializer})?
+
+.vsyntax initializer = { ::assignment_expression}
+                or { '{` } { ::initializer_list} { '}` } 
+                or { '{` } { ::initializer_list} { ',` } { '}` } 
+
+.vsyntax initializer_list = { ::initializer} ({ ',` } { ::initializer})*
+
+
+
+
+.vsyntax compound_statement = { '{` } ({ ::declaration} or { ::statement})* { '}` } 
+
+.vsyntax statement = { ::compound_statement}
+              or { ::expression_statement}
+              or { ::selection_statement}
+              or { ::iteration_statement}
+              or { ::jump_statement}
+              or { ::labeled_statement}
+              or { ::pragma}
+
+.vsyntax labeled_statement = { ::identifier} { ':` } { ::statement}
+                      or {case } { ::constant_expression} { ':` } { ::statement}
+                      or {default } { ':` } { ::statement}
+
+.vsyntax expression_statement = ({ ::expression})? { ';` } 
+
+.vsyntax selection_statement = ({if } or {switch }) { '(` } { ::expression} { ')` } { ::statement} ({ else ::statement} or !({ else}))
+
+.vsyntax iteration_statement = {while ( ::expression ) ::statement}
+                        or {do ::statement while ( ::expression ) ; } 
+                        or {for ( } { ::expression}? { ; } { ::expression}? { ; } { ::expression}? { ) ::statement}
+
+.vsyntax jump_statement = {goto } { ::identifier} { ';` } 
+                   or {continue } { ';` } 
+                   or {break } { ';` } 
+                   or {return } ({ ::expression})? { ';` } .
+

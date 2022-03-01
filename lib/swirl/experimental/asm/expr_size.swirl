@@ -1,0 +1,35 @@
+%: -> {'
+    %::expr_size('ah`) -> {1}
+    %: expr_size('bh`) -> {1}
+    %: expr_size('ch`) -> {1}
+    %: expr_size('dh`) -> {1}
+    %: expr_size('al`) -> {1}
+    %: expr_size('bl`) -> {1}
+    %: expr_size('cl`) -> {1}
+    %: expr_size('dl`) -> {1}
+    %: expr_size('ax`) -> {2}
+    %: expr_size('bx`) -> {2}
+    %: expr_size('cx`) -> {2}
+    %: expr_size('dx`) -> {2}
+    %: expr_size('si`) -> {2}
+    %: expr_size('di`) -> {2}
+    %: expr_size('bp`) -> {2}
+    %: expr_size('sp`) -> {2}
+    %: expr_size('eax`) -> {4}
+    %: expr_size('ebx`) -> {4}
+    %: expr_size('ecx`) -> {4}
+    %: expr_size('edx`) -> {4}
+    %: expr_size('esi`) -> {4}
+    %: expr_size('edi`) -> {4}
+    %: expr_size('ebp`) -> {4}
+    %: expr_size('esp`) -> {4}
+    %: expr_size(BYTE::rest) -> {1}
+    %: expr_size(WORD::rest) -> {2}
+    %: expr_size(DWORD::rest) -> {4}
+    %: expr_size(QWORD::rest) -> {8}
+
+    %::ptr_from_size('1`) -> {BYTE PTR}
+    %: ptr_from_size('2`) -> {WORD PTR}
+    %: ptr_from_size('4`) -> {DWORD PTR}
+    %: ptr_from_size('8`) -> {QWORD PTR}
+`}

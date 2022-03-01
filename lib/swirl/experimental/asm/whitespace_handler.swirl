@@ -1,0 +1,18 @@
+%: 1wh_nonl {' `}
+%: 1wh_nonl{'	`}
+
+%: nwh_nonl {}
+%: nwh_nonl {::1wh_nonl::nwh_nonl}
+%: 1nwh_nonl {::1wh_nonl::nwh_nonl}
+
+%: (undefine) swirl_whitespace_handler_header {}
+%: swirl_whitespace_handler_header('begin`) {::rest} -> {}
+%: swirl_whitespace_handler_header('end`) {::rest} -> {}
+%: swirl_whitespace_handler_header('between lines`) {::rest} -> {}
+%: swirl_whitespace_handler_header('within line`) {::rest} -> {'::nwh_nonl`}
+
+%: (undefine) swirl_whitespace_handler_body {}
+%: swirl_whitespace_handler_body('begin`) {:r:rest} -> {}
+%: swirl_whitespace_handler_body('end`) {::rest} -> {}
+%: swirl_whitespace_handler_body('between lines`) {:r:rest} -> {'::get_newline`}
+%: swirl_whitespace_handler_body('within line`) {:r:rest} -> {{''`}:r{'``}}
