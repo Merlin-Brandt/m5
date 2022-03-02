@@ -1,4 +1,4 @@
-%: /usr/local/lib/swirl/init.swirl.0.1
+%: {::swirl_load(/usr/local/lib/swirl/init.swirl.0.1)}
 
 %: comment {
     ENSURE_234876234827

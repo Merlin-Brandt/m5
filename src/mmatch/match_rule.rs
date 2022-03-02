@@ -52,8 +52,6 @@ impl Rule {
 
     /// try applying rule variants from the bottom up
     pub fn match_last<'a>(&self, input: &'a str, param: &str, rules: &Rules) -> MatchResult<(&'a str, String)> {
-        println!("rule {}", self.name);
-        
         if self.is_macro() {
             if self.name == "swirl_load" {
                 Ok((input, dump_file(param)

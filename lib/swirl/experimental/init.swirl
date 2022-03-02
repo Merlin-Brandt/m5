@@ -1,4 +1,4 @@
 %: cwd -> {../}
-%: ../init.swirl
-%: ../lean_comments.swirl
-%: ..//metatime.swirl
+%: {::swirl_load(../init.swirl)}
+%: {::swirl_load(../lean_comments.swirl)}
+%: {::swirl_load(..//metatime.swirl)}

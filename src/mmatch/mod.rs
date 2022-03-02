@@ -116,7 +116,7 @@ impl<'a> Braces<'a> {
 // finds the matching closing brace to the opening brace that is located at input[-1]
 // also considering other brace types that may appear inside the quote
 // returns (if no error):
-//     1. the new input pointer as beginning at the matched closed brace
+//     1. the new input pointer right after the matched closed brace
 //     2. the text between opening brace and corresponding (!) closing brace.
 fn select_until_matching_brace<'a>(input: &'a Input, brace_i: usize, braces: &Braces) -> MatchResult<(&'a Input, &'a str)> {
     // ensure no two braces are the same [1]
@@ -133,24 +133,23 @@ fn select_until_matching_brace<'a>(input: &'a Input, brace_i: usize, braces: &Br
     loop {
         // each branch [a] and branch [b] are mutually exclusive because of [1]
         if input.starts_with(braces[brace_i].0) { // [a]
-            if brace_i == 1 {
-                println!("Warning: {}{} braces are deprecated and will be removed soon.", braces[brace_i].0, braces[brace_i].1);
-            }
             level.push(braces[brace_i]);
-            input = skip_str(input, braces[brace_i].0.len());
+            input = &input[braces[brace_i].0.len()..];
         }
-
-        if input.starts_with(level.last().unwrap().1) { // [b]
-            input = skip_str(input, level.last().unwrap().1.len());
+        else if input.starts_with(level.last().unwrap().1) { // [b]
+            let close_brace_len = level.last().unwrap().1.len();
+            let length = input_start.len() - input.len();
+            input = &input[close_brace_len..];
             level.pop();
             if level.len() == 0 {
-                let length = input_start.len() - input.len();
                 return Ok((input, &input_start[..length]))
             }
         }
-        
-        if input.is_empty() {
+        else if input.is_empty() {
             return Err(brace_error());
+        }
+        else {
+            input = skip_str(input, 1);
         }
     }
 
@@ -191,11 +190,11 @@ pub fn match_escapable_char<'a>(input: &'a Input, braces_t: &Braces) -> MatchRes
     let braces = &braces_t.0;
     for (brace_i, brace) in braces.iter().enumerate() {
         if input.starts_with(brace.0) {
-            let (closing_brace, brace_contents)
-                = select_until_matching_brace(input, brace_i, braces_t)
+            let (input, brace_contents)
+                = select_until_matching_brace(&input[brace.0.len()..], brace_i, braces_t)
                 .ok().ok_or_else(||
                     MatchError::expected(&format!("End of escape string: '{}`", braces[brace_i].1), "<end of file>"))?;
-            return Ok((&closing_brace[brace.1.len()..], brace_contents, true))
+            return Ok((input, brace_contents, true))
         }
     }
     if input.is_empty() {

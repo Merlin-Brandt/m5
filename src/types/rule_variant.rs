@@ -198,7 +198,7 @@ impl fmt::Display for RuleVariant {
         let maybe_body = self.0._body.as_ref().map(|body| {
             format!(" -> {{{}}}", body)
         }).unwrap_or("".to_string());
-        write!(f, "{}{{{}}}{}", parameters, self.0._header, maybe_body);
+        write!(f, "{}{{{}}}{}", parameters, self.0._header, maybe_body)?;
         
         Ok(())
     }

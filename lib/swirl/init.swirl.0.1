@@ -1,7 +1,7 @@
 %: init_swirl {}
 %: init_swirl_0_1 {}
 %: init_swirl_0_1_1 {}
-%: -> {'%:`::cwd/init/predefined.swirl' `}
+%: {::swirl_load(::cwd/init/predefined.swirl)}
 %: print (print) {}
 %: groups_swirl {}
 %: 1wh {' `}
@@ -33,7 +33,7 @@
 %: opaquechar {::not_whitespace::anychar}
 %: not_whitespace (not) {::whitespace}
 
-%: -> {'%:`::cwd/lean_comment.swirl' `}
+%: {::swirl_load(::cwd/lean_comment.swirl)}
 
 %: {::remove_comments} {
 
@@ -83,9 +83,7 @@
 %: raise_quote2(:r:rest) -> {::raise_quote(::raise_quote(:r))}
 %: raise_braced_quote(:r:rest) -> {'{`«'»:r«`»'}`}
 
-%: -> {'
-   %: `::cwd'//init//whitespace_handler.swirl 
-`}
+%: {::swirl_load(::cwd//init//whitespace_handler.swirl)}
 
 /warning: might not work/
 %: not (not) (:r:rest) {:r}

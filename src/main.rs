@@ -75,25 +75,9 @@ pub fn find_statement(input: &Input) -> Option<(&str, &Input)> {
 use std::fs::File;
 
 pub fn match_statement<'a>(input: &'a Input, rules: &Rules) -> MatchResult<(&'a Input, (String, Option<RuleVariant>))> {
-    let input_begin = input;
     match match_rule_definition(input, rules) {
         Ok((input, (name, variant))) => Ok((input, (name, Some(variant)))),
-        Err(def_err) => match match_file_invocation(input, rules) {
-            Ok((input, name)) => match File::open(name) {
-                Ok(_) => Ok((input, (name.to_string(), None))),
-                Err(file_err) => {
-                    let msg = "Ill-formed rule definition or invocation to unexisting file.";
-                    let file_err = MatchError::new(format!("Error loading file '{}': {} ", name, file_err));
-                    MatchError::compose(msg, vec![def_err, file_err]).tap(Err)
-                        .trace(error_region(input_begin).to_string())
-                }
-            },
-            Err(file_err) => {
-                let msg = format!("Expected statement, got {}", error_region(input));
-                MatchError::compose(msg, vec![def_err, file_err]).tap(Err)
-                    .trace(error_region(input_begin).to_string())
-            }
-        }
+        Err(def_err) => Err(def_err),
     }
 }
 
@@ -131,6 +115,13 @@ fn init_rules() -> Rules {
         Rule::new("swirl_version_0_2_0".to_string())
             .variant(RuleVariant::empty())
     });
+    rules.insert("swirl_load".to_string(), {
+        Rule::new("swirl_load".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("swirl_main".to_string(), {
+        Rule::new("swirl_main".to_string())
+    });
     rules
 }
 
@@ -144,49 +135,55 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
             break;
         }
 
-        let (statement_end, (name, maybe_variant)) = match_statement(statement_begin, rules)?;
-            // all text until the current rule definition remains untouched (because it is between the beginning/a rule definition and a rule definition)
-            // so just push it to the result string
-            receive_output(skipped_text)?;
-            if !remove_defs {
-                receive_output(&statement_begin[..(statement_begin.len() - statement_end.len())])?;
-            }
+        match match_statement(statement_begin, rules) {
+            Ok((statement_end, (name, maybe_variant))) => {
+                // all text until the current rule definition remains untouched (because it is between the beginning/a rule definition and a rule definition)
+                // so just push it to the result string
+                receive_output(skipped_text)?;
+                if !remove_defs {
+                    receive_output(&statement_begin[..(statement_begin.len() - statement_end.len())])?;
+                }
 
-            // add variant to definitions (or remove) (perhaps call it)
-            if let Some(variant) = maybe_variant {
-                let name = || name.clone();
-                let rule_entry = rules.entry(name()).or_insert(Rule::new(name()));
-                let name = name();
+                // add variant to definitions (or remove) (perhaps call it)
+                if let Some(variant) = maybe_variant {
+                    let name = || name.clone();
+                    let rule_entry = rules.entry(name()).or_insert(Rule::new(name()));
+                    let name = name();
 
-                // next portion to process is after the current rule definition
-                input = statement_end.to_string();
+                    // next portion to process is after the current rule definition
+                    input = statement_end.to_string();
 
-                if variant.is_undefine() {
-                    rules.remove(&name);
-                } else {
-                    rule_entry.variants.push(variant.clone());
+                    if variant.is_undefine() {
+                        rules.remove(&name);
+                    } else {
+                        rule_entry.variants.push(variant.clone());
 
-                    // empty name means invocation
-                    if name.is_empty() {
-                        // next portion to process is the output of application of the current rule definition (piped to all previous unnamed rule definitions)
-                        let new_input = rules[&name].match_sequence(&input, rules, &mut appleft)?;
-                        // if this rule was just to be applied once, remove from definitions
-                        if variant.shallow_call() {
-                            rules.get_mut(&name).unwrap().variants.pop().unwrap();
+                        // empty name means invocation
+                        if name.is_empty() {
+                            // next portion to process is the output of application of the current rule definition (piped to all previous unnamed rule definitions)
+                            let new_input = rules[&name].match_sequence(&input, rules, &mut appleft)?;
+                            // if this rule was just to be applied once, remove from definitions
+                            if variant.shallow_call() {
+                                rules.get_mut(&name).unwrap().variants.pop().unwrap();
+                            }
+                            input = new_input;
                         }
-                        input = new_input;
-                    }
 
+                    }
+                }
+            },
+            Err(def_err) => {
+                // let user-defined ::swirl_main rule parse the string followed by %:
+                match rules["swirl_main"].match_last(statement_begin, "", rules) {
+                    Ok((new_input, result)) => {
+                        input = result + new_input;
+                    },
+                    Err(main_err) => {
+                        Err(MatchError::compose("Cannot parse %: statement", vec![def_err, main_err]))?
+                    }
                 }
             }
-            // invoke file
-            else {
-                // insert file contents before rest of this file
-                let filecontent = dump_file(&name)
-                    .map_err(|err| MatchError::new(format!("Error loading '{}': {}", name, err)))?;
-                input = format!("{}{}", filecontent, statement_end);
-            }
-
+        }
     }
 
     // the rest of the input contains no more rule definitions, so output it
@@ -209,46 +206,6 @@ fn process_file(target: &str, steps: MaybeInf<u32>, remove_defs: bool) -> Result
 use std::io::{self, Read, Write};
 use std::error::Error;
 
-fn repl() -> Result<(), Box<dyn Error>> {
-    let stdin = io::stdin();
-
-    let mut target = "input.txt".to_string();
-    let mut userline = String::new();
-
-    print!(" $ ");
-    io::stdout().flush()?;
-
-    while stdin.read_line(&mut userline).is_ok() {
-        {
-            let userline: Vec<&str> = userline.split(" ").map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
-            if userline.len() == 0 {continue;}
-
-            if userline[0] == "quit" {
-                break;
-            } else if userline[0] == "target" {
-                target = userline.get(1).map(|s| s.to_string()).unwrap_or_else(|| {
-                    println!("No target given.");
-                    target
-                });
-            } else if userline[0] == "s_unsupported" || userline[0] == "step_unsupported" {
-                let step_count: &str = userline.get(1).unwrap_or(&"1");
-                let step_count: u32 = step_count.parse().unwrap();
-                process_file(&target, MaybeInf::Finite(step_count), false)?;
-            } else if userline[0] == "r" || userline[0] == "run" {
-                process_file(&target, MaybeInf::Infinite, true)?;
-            } else {
-                println!("unknown command '{}'", userline[0]);
-            }
-        }
-
-        print!(" $ ");
-        io::stdout().flush()?;
-        userline.clear();
-    }
-
-    Ok(())
-}
-
 static mut VERBOSE: bool = false; 
 
 pub fn is_verbose() -> bool {
@@ -256,14 +213,16 @@ pub fn is_verbose() -> bool {
 }
 
 //#[cfg(not(debug_assertions))]
-fn main() -> Result<(), ()>  {
-    let mut is_stepping = std::env::args().any(|s| s == "--step" || s == "-s");
+fn main()  {
+    let is_stepping = std::env::args().any(|s| s == "--step" || s == "-s");
+    let remove_defs = !std::env::args().any(|s| s == "--print-defs" || s == "-d");
+    let repl = std::env::args().any(|s| s == "--repl");
     unsafe { VERBOSE = std::env::args().any(|s| s == "--verbose" || s == "-v") };
 
-    let (steps, remove_defs) = if is_stepping {
-        (MaybeInf::Finite(1), false)
+    let steps = if is_stepping {
+        MaybeInf::Finite(1)
     } else {
-        (MaybeInf::Infinite, true)
+        MaybeInf::Infinite
     };
 
     init_braces();
@@ -271,28 +230,39 @@ fn main() -> Result<(), ()>  {
     if cfg!(debug_assertions) {
         println!(" -- Debug mode --");
         unsafe { ::std::intrinsics::breakpoint() }
-        return process_file("input.txt", MaybeInf::Infinite, true).map_err(|e| eprintln!("{}", e));
+        process_file("src/test.swirl", MaybeInf::Infinite, true).map_err(|e| eprintln!("{}", e)).unwrap();
     }
 
-    let mut buffer = String::new();
-    io::stdin().read_to_string(&mut buffer)
-        .map_err(|e| eprintln!("{}", e))?;
-    process(&buffer, &mut init_rules(), steps, remove_defs, |lines| {
-        print!("{}", lines);
-        io::stdout().flush().unwrap();
-        Ok(())
-    }).map_err(|e| eprintln!("{}", e))
-
-    /* let mut rules = init_rules();
-    let mut userline = String::new();
-    while io::stdin().read_line(&mut userline).is_ok() {
-        process(&userline, &mut rules, steps, remove_defs, |lines| {
-            println!("{}", lines);
+    if !repl {
+        let mut buffer = String::new();
+        io::stdin().read_to_string(&mut buffer)
+            .map_err(|e| eprintln!("{}", e)).unwrap();
+        process(&buffer, &mut init_rules(), steps, remove_defs, |lines| {
+            print!("{}", lines);
             io::stdout().flush().unwrap();
             Ok(())
-        }).map_err(|e| eprintln!("{}", e))?;
-        userline.clear();
+        }).map_err(|e| {
+            eprintln!("{}", e);
+        }).unwrap();
+    } else {
+        let stdin = io::stdin();
+        let mut userline = String::new();
+        let mut rules = init_rules();
+    
+        print!(" $ ");
+        io::stdout().flush().unwrap();
+    
+        while stdin.read_line(&mut userline).is_ok() {
+            process(&userline, &mut rules, steps, remove_defs, |lines| {
+                print!("{}", lines);
+                Ok(())
+            }).map_err(|e| {
+                eprintln!("{}", e);
+            }).unwrap();
+            print!(" $ ");
+            io::stdout().flush().unwrap();
+            userline.clear();
+        }
     }
-    Ok(()) */
 }
 

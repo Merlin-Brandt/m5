@@ -63,9 +63,7 @@
 %: mangled_ident {::unimplemented}
 %: unmangled_ident {::unimplemented}
 
-%: -> {
-   %: ::cwd//structured.swirl' `
-}
+%: {::swirl_load(::cwd//structured.swirl)}
 
 %: maybe_param {}
 %: maybe_param {param}
@@ -283,7 +281,7 @@
 
 %: continue_eval {:r:rest::assert_empty(:r)}
 %: continue_eval {:r:rest} -> {
-   %: '{::`metatime_eval({«'»:r«`»})'}`
+   %: '{::`metatime_eval(«'»:r«`»)'}`
 }
 %: continue_eval_at_once {:r:rest} -> {::metatime_eval(:r)}
 

@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 use crate::*;
 use std::str::FromStr;
 
+#[allow(non_upper_case_globals)]
 static mut first: bool = true;
 
 impl RuleVariant {

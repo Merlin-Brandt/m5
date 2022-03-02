@@ -1,7 +1,5 @@
 %: {::init_swirl}
-%: -> {
-   %: ::cwd/whitespace_handler.swirl' `
-}
+%: {::swirl_load(::cwd/whitespace_handler.swirl)}
 
 %::process_asm {::eof}
 %: process_asm { ::asm_line ::process_asm}

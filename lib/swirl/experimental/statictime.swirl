@@ -4,10 +4,10 @@
 
 / question//todo: in parameter definitions, unnamed binds should not be allowed. is that the case? /
 
-%: /usr/local/lib/swirl/init.swirl.0.1
-%: /usr/local/lib/swirl/lean_comment.swirl
-%: /usr/local/lib/swirl/experimental/c_syntax.swirl
-%: /usr/local/lib/swirl/metatime.swirl
+%: {::swirl_load(/usr/local/lib/swirl/init.swirl.0.1)}
+%: {::swirl_load(/usr/local/lib/swirl/lean_comment.swirl)}
+%: {::swirl_load(/usr/local/lib/swirl/experimental/c_syntax.swirl)}
+%: {::swirl_load(/usr/local/lib/swirl/metatime.swirl)}
 
 /' 
 
