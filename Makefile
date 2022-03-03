@@ -1,4 +1,4 @@
-target=m5.0.2.0
+target=m5
 
 prj:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
