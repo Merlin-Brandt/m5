@@ -3,6 +3,8 @@
 
 .gitignore
 
+debuglog.txt
+
 hidden
 
 Cargo.lock
