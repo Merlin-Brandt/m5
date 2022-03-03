@@ -1,9 +1,11 @@
 %: {::init_swirl}
 %: {::swirl_load(::cwd/whitespace_handler.swirl)}
 
+%: next_process_line {:r:rest} -> {'%: {::process_asm}`:r}
+
 %::process_asm {::eof}
-%: process_asm { ::asm_line ::process_asm}
-%: process_asm { ::unroll_stack ::process_asm}
+%: process_asm { ::asm_line ::next_process_line}
+%: process_asm { ::unroll_stack ::next_process_line} 
 
 %: asm_line {::look_ahead_comment::asm_comment::newline}
 %: asm_line {:address:hex_uint': ` :instr:instr :c:asm_comment :nl:newline} -> {:address': ` :instr :c :nl}
@@ -32,9 +34,7 @@
 %: expr {::ptr_type [::addrmode]}
 %: expr {::ptr_type 'ds:`::const}
 
-%: -> {
-   %: ::cwd/expr_size.swirl' `
-}
+%: {::swirl_load(::cwd/expr_size.swirl)}
 
 %::const {0x::hex_uint}
 
@@ -60,7 +60,5 @@
 %::look_ahead_comment_ (not) {;}
 
 
-%: -> {
-   %: ::cwd/unroll_stack.swirl' `
-}
+%: {::swirl_load(::cwd/unroll_stack.swirl)}
 

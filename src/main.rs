@@ -1,3 +1,12 @@
+
+//////////////////////////////////////////////////////
+//                                                  //
+//  Yes, the code is in a very messy state,         //
+//  I have never intended to publish the code,      //
+//  and so far it was not worth cleaning it up.     //
+//                                                  //
+//////////////////////////////////////////////////////
+
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![feature(core_intrinsics)]
@@ -54,13 +63,6 @@ static mut INDENT: usize = 0;
 fn push_indent() {unsafe {INDENT += 2;}}
 fn pop_indent() {unsafe {INDENT -= 2;}}
 fn get_indent() -> String {unsafe {"  ".repeat(INDENT)}}
-
-// todo: idea:
-// program watches input file
-// and then whenever it changes it updates input.txt.1 with the first stage
-// input.txt.2 with the second stage
-// and input.txt.n with the last stage (both literally 'input.txt.n' and 'input.txt.5' if n=5)
-// enables interactive usage and viewing stages directly with shortcuts
 
 // todo: remove unescaped whitespace
 

@@ -1,5 +1,1 @@
-%: (print) p {} %: {::p}
-
-%: -> {'
-    %: `::cwd'/init.swirl.0.1 
-`}
+%: {::swirl_load(::cwd/init.swirl.0.1)} 
