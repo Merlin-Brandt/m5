@@ -1,5 +1,5 @@
 
-a recursive macroprocessor,
+a recursive macro preprocessor,
 
 which can be used to quickly define new syntaxes to any source language
               and as a static code-analysis tool.
