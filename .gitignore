@@ -1,6 +1,8 @@
 /target
 **/*.rs.bk
 
+.gitignore
+
 hidden
 
 Cargo.lock
