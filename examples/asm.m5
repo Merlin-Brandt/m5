@@ -1,0 +1,17 @@
+
+%: {::m5_load(_impl/asm_libraries.m5)}
+
+Example of simple machine code analysis.
+Each 'push' and 'pop' instruction is broken down to its two sub-instructions,
+such that the dynamic stack adresses are statically determined.
+
+%: {::process_asm}
+00000001: push eax 
+00000002: mov  eax, 1  
+00000003: push eax
+00000004: mov ebx, 2
+00000005: add eax, ebx
+00000006: pop ebx 
+00000007: add eax, ebx
+00000008: pop ebx
+00000009: add eax, ebx

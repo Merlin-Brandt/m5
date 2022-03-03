@@ -59,10 +59,10 @@ pub fn match_inner_rule_definition<'a>(mut input: &'a Input, rules: &Rules) -> M
 
         // (parameter header) {input header with :rule:invocation.s} -> {body with :var.s} (catch unknown rule) {body with :var.s}
 
-        let (input, parameter_header_option) = match_invocation_string_def(input, rules, '(', ')', SWIRL_WHITESPACE_HANDLER_PARAM_HEADER)?;
+        let (input, parameter_header_option) = match_invocation_string_def(input, rules, '(', ')', M5_WHITESPACE_HANDLER_PARAM_HEADER)?;
         let input = match_whitespaces(input)?;
         
-        let (input, input_header) = match_invocation_string_def(input, rules, '{', '}', SWIRL_WHITESPACE_HANDLER_HEADER)?;
+        let (input, input_header) = match_invocation_string_def(input, rules, '{', '}', M5_WHITESPACE_HANDLER_HEADER)?;
         let input_header_is_implicit = input_header.is_none();
         let input_header = input_header.unwrap_or(InvocationString::empty());
         let input = match_whitespaces(input)?;
@@ -81,7 +81,7 @@ pub fn match_inner_rule_definition<'a>(mut input: &'a Input, rules: &Rules) -> M
             Ok(input) => {
                 let input = match_whitespaces(input)?;
                 
-                let (input, body) = match_invocation_string_def(input, rules, '{', '}', SWIRL_WHITESPACE_HANDLER_BODY)?;
+                let (input, body) = match_invocation_string_def(input, rules, '{', '}', M5_WHITESPACE_HANDLER_BODY)?;
                 let body = body.ok_or(MatchError::expected("rule body", input))?;
 
                 let input = match_whitespaces(input)?;
@@ -89,7 +89,7 @@ pub fn match_inner_rule_definition<'a>(mut input: &'a Input, rules: &Rules) -> M
                     Ok(input) => {
                         let input = match_whitespaces(input)?;
                         let catch_body_start = input;
-                        let (input, catch_body) = match_invocation_string_def(input, rules, '{', '}', SWIRL_WHITESPACE_HANDLER_CATCH_BODY)?;
+                        let (input, catch_body) = match_invocation_string_def(input, rules, '{', '}', M5_WHITESPACE_HANDLER_CATCH_BODY)?;
                         let catch_body = catch_body.ok_or_else(|| MatchError::expected("Catch Body", catch_body_start))?;
                         //let input = match_whitespaces(input)?;
                         (input, Some(catch_body))

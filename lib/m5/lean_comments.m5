@@ -1,0 +1,1 @@
+%: {::m5_load(::cwd//lean_comment.m5)}

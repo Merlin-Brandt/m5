@@ -1,0 +1,58 @@
+#version 130
+
+/*
+ *  Explicit attribute locations must be specified like this:
+ *
+ *     layout(location = 0) in vec3 vertXYZ;
+ *     layout(location = 1) in vec2 vertUV;
+ *
+ *  However that is redudant code, as the location shall be in the exact order of the attribute declarations.
+ *  Some simple macroprocessor rules will solve this syntactical problem.
+ */
+
+%: {::m5_load(_impl/init.m5)}
+
+// define a glsl_type token. 
+%: glsl_type {vec::09}
+%: glsl_type {ivec::09}
+%: glsl_type {dvec::09}
+%: glsl_type {uvec::09}
+%: glsl_type {fvec::09}
+
+// current attribute number while processing source code
+%: attribute_number -> {0}
+
+// place layout specifier and increment attribute number
+%: layout_inc -> {'
+	%: -> {'
+	    layout(location=`::attribute_number')
+		%: attribute_number = {`::m5cl(::attribute_number + 1)'}
+	`}
+`}  
+
+// if an attribute was found, add a layout specifier to it.
+%: attribute_feature {
+    in :t:glsl_type :n:alnum_s::nwh;
+} -> {
+	::layout_inc in :t :n;
+}
+
+// introduce the syntax defined above to this source file.
+%: {::activate_shallow_rule(attribute_feature)}
+
+// now the source code with new syntax can be written below.
+ 
+uniform mat4 view;
+uniform mat4 projection;
+
+in vec3 vertXYZ;
+in vec2 vertUV;
+smooth out vec3 fragXYZ;
+smooth out vec2 fragUV;
+
+void main()
+{
+	gl_Position = projection * view * vec4(vertXYZ, 1);
+	fragXYZ = vertXYZ;
+	fragUV = vertUV;
+}

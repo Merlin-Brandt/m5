@@ -1,4 +1,4 @@
-%/: /usr/local/lib/swirl/init.swirl
+%/: /usr/local/lib/m5/init.m5
 
 %: anychar (any) {}
 

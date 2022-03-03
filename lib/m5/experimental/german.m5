@@ -1,0 +1,20 @@
+
+%: {::m5_load(/usr/local/lib/m5/init.m5.0.1)}
+
+%: meta {
+	create namespace new_var_946378.
+}
+
+%: include_syntax {
+    %: include! (:v:m5_var):r:rest
+} -> {'
+    %: {} -> {:new_var_946378:`:v':new_var_946378}`:r'
+`}
+%: {::activate_rule(include_syntax)}
+
+%: include! (:m5_lib)/lean_comment.m5
+
+
+/ <thisterm>.{} feature /
+
+this file ends here/ and this is a comment/.

@@ -1,0 +1,24 @@
+%: /usr/local/lib/m5/lean_comments.m5
+
+/
+    Specify which identifiers shall be cleared after the block ends.
+
+    local helper_rule, other_helper {
+        %: helper_rule {hello} -> {world}
+        %: other_helper {1 + 1} -> {2}
+
+        ...other code...
+    }
+
+    ->
+
+    %: helper_rule {hello} -> {world}
+    %: other_helper {1 + 1} -> {2}
+
+    ...other code...
+
+    %: helper_rule (undefine)
+    %: other_helper (undefine)
+/
+
+%: {::unimplemented}

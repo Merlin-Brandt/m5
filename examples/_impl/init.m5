@@ -1,0 +1,2 @@
+%: cwd -> {../lib/m5/}
+%: {::m5_load(::cwd/init.m5)}

@@ -50,12 +50,12 @@ pub fn braces() -> Braces<'static> {
 pub const RULE_INVOCATION_CHAR: char = ':';
 pub const RULE_DEFINITION_KEY: &str = "%:";
 
-pub const SWIRL_WHITESPACE_RULES: [&str; 4] = ["whitespace", "whitespaces", "nwh", "1nwh"];
-pub const SWIRL_WHITESPACE_HANDLER_PARAM_HEADER: &str = "swirl_whitespace_handler_header";
-pub const SWIRL_WHITESPACE_HANDLER_PARAM_INPUT: &str = "swirl_whitespace_handler_body";
-pub const SWIRL_WHITESPACE_HANDLER_HEADER: &str = "swirl_whitespace_handler_header";
-pub const SWIRL_WHITESPACE_HANDLER_BODY: &str = "swirl_whitespace_handler_body";
-pub const SWIRL_WHITESPACE_HANDLER_CATCH_BODY: &str = "swirl_whitespace_handler_body";
+pub const M5_WHITESPACE_RULES: [&str; 4] = ["whitespace", "whitespaces", "nwh", "1nwh"];
+pub const M5_WHITESPACE_HANDLER_PARAM_HEADER: &str = "m5_whitespace_handler_header";
+pub const M5_WHITESPACE_HANDLER_PARAM_INPUT: &str = "m5_whitespace_handler_body";
+pub const M5_WHITESPACE_HANDLER_HEADER: &str = "m5_whitespace_handler_header";
+pub const M5_WHITESPACE_HANDLER_BODY: &str = "m5_whitespace_handler_body";
+pub const M5_WHITESPACE_HANDLER_CATCH_BODY: &str = "m5_whitespace_handler_body";
 
 
 static mut INDENT: usize = 0;
@@ -85,44 +85,47 @@ pub fn match_statement<'a>(input: &'a Input, rules: &Rules) -> MatchResult<(&'a 
 
 fn init_rules() -> Rules {
     let mut rules = HashMap::new();
-    rules.insert("swirl_default_call_explicit_syntax".to_string(), {
-        Rule::new("swirl_default_call_explicit_syntax".to_string())
+    rules.insert("m5_default_call_explicit_syntax".to_string(), {
+        Rule::new("m5_default_call_explicit_syntax".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_feature_undefine_rule".to_string(), {
-        Rule::new("swirl_feature_undefine_rule".to_string())
+    rules.insert("m5_feature_undefine_rule".to_string(), {
+        Rule::new("m5_feature_undefine_rule".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_new_quote_signs".to_string(), {
-        Rule::new("swirl_new_quote_signs".to_string())
+    rules.insert("m5_new_quote_signs".to_string(), {
+        Rule::new("m5_new_quote_signs".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_version_0_0_1".to_string(), {
-        Rule::new("swirl_version_0_0_1".to_string())
+    rules.insert("m5_version_0_0_1".to_string(), {
+        Rule::new("m5_version_0_0_1".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_version_0_0_2".to_string(), {
-        Rule::new("swirl_version_0_0_2".to_string())
+    rules.insert("m5_version_0_0_2".to_string(), {
+        Rule::new("m5_version_0_0_2".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_version_0_0_3".to_string(), {
-        Rule::new("swirl_version_0_0_3".to_string())
+    rules.insert("m5_version_0_0_3".to_string(), {
+        Rule::new("m5_version_0_0_3".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_version_0_1_0".to_string(), {
-        Rule::new("swirl_version_0_1_0".to_string())
+    rules.insert("m5_version_0_1_0".to_string(), {
+        Rule::new("m5_version_0_1_0".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_version_0_2_0".to_string(), {
-        Rule::new("swirl_version_0_2_0".to_string())
+    rules.insert("m5_version_0_2_0".to_string(), {
+        Rule::new("m5_version_0_2_0".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_load".to_string(), {
-        Rule::new("swirl_load".to_string())
+    rules.insert("m5_load".to_string(), {
+        Rule::new("m5_load".to_string())
             .variant(RuleVariant::empty())
     });
-    rules.insert("swirl_main".to_string(), {
-        Rule::new("swirl_main".to_string())
+    rules.insert("m5_main".to_string(), {
+        Rule::new("m5_main".to_string())
+    });
+    rules.insert("m5_load_with_cwd".to_string(), {
+        Rule::new("m5_load_with_cwd".to_string())
     });
     rules
 }
@@ -131,7 +134,7 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
     let mut input = input.to_string();
 
     while let Some((skipped_text, statement_begin)) = find_statement(&input) {
-        // todo: use swirl to sweeten this up to 
+        // todo: use m5 to sweeten this up to 
         // break if appleft == MaybeInf::Finite(0);
         if appleft == MaybeInf::Finite(0) {
             break;
@@ -175,8 +178,8 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
                 }
             },
             Err(def_err) => {
-                // let user-defined ::swirl_main rule parse the string followed by %:
-                match rules["swirl_main"].match_last(statement_begin, "", rules) {
+                // let user-defined ::m5_main rule parse the string followed by %:
+                match rules["m5_main"].match_last(statement_begin, "", rules) {
                     Ok((new_input, result)) => {
                         input = result + new_input;
                     },
@@ -232,7 +235,7 @@ fn main()  {
     if cfg!(debug_assertions) {
         println!(" -- Debug mode --");
         unsafe { ::std::intrinsics::breakpoint() }
-        process_file("src/test.swirl", MaybeInf::Infinite, true).map_err(|e| eprintln!("{}", e)).unwrap();
+        process_file("src/test.m5", MaybeInf::Infinite, true).map_err(|e| eprintln!("{}", e)).unwrap();
     }
 
     if !repl {

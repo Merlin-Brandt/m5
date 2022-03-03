@@ -1,0 +1,144 @@
+
+%: cwd -> {lib//m5//}
+%: {::m5_load(::cwd//init.m5.0.1)}
+
+%::new_rule {}
+
+%: {::m5_load(::cwd//lean_comments.m5)}
+%: {::m5_load(::cwd//metatime.m5)}
+
+%: {::remove_comments} {
+
+%: {::bake_rule(until_bar = until |)}
+
+%: eq(::until_bar|::rest) {} -> {false}
+%: eq(:a:until_bar|:a) {} -> {true}
+
+%: expect(false:r:rest) {} -> {
+   %: -> {
+      %: {«::throw_»:r}
+   }
+}
+%: expect(true::rest) {} -> {}
+
+%: expect_eq(:r:rest) -> {::expect(::eq(:r))}
+%: expect_not(:r:rest) -> {::expect(::negate(:r))}
+
+%: negate('false`) -> {true}
+%: negate('true`) -> {false}
+
+%: m5_main {
+   %: :name:alnum_s::nwh=::nwh:i:int::nwh;
+} -> {
+   %: :name -> {:i}
+}
+
+%: virtual_variable = 0;
+
+%: {::expect(::eq(::virtual_variable|0))}
+
+%: {::use_whitespace_handler(remove all whitespace)} {
+   %::test_rule_5(::rest) -> {error!}
+   %: test_rule_5(this is a test) -> {this is the result}
+}
+
+%::test_rule_6(::rest) -> {error!}
+%: test_rule_6(this is a test) -> {this is the result}
+
+%: {::expect(::eq(::test_rule_5(thisisatest)|thisistheresult))}
+%: {::expect(::eq(::test_rule_5(this is a test)|error!))}
+
+%: {::expect(::eq(::test_rule_6(this is a test)|this is the result))}
+%: {::expect(::eq(::test_rule_6(this  is  a  test)|this is the result))}
+%: {::expect(::eq(::test_rule_6(thisisatest)|error!))}
+
+%: meta! {
+   type string_list = list of {::c_quote}.
+}
+
+%: test_string_list(::rest) -> {false}
+%: test_string_list([::string_list]) -> {true}
+
+%: {::expect(::eq(::test_string_list(["hel lo", "wo rld", "", "\""])|true))}
+%: {::expect(::eq(::test_string_list(["hel lo"])|true))}
+%: {::expect(::eq(::test_string_list([])|true))}
+%: {::expect(::eq(::test_string_list(["a", 34, "wo rld"])|false))}
+
+%: COMMENT {'{`}
+
+%: {::m5_rule_invoc} -> {} :rule:invoc
+%: {::m5_header({})!} -> {} {:hello:world this is a 'header`}!
+%: {::m5_rule_def} -> {} %: (flag) consumed_rule -> {'lmao}`} (catch unknown rule) {«'»}
+%: test_consumption (not) {::consumed_rule}
+%: {::test_consumption}
+
+%: -> {'
+`  ::expect(true)'
+`  ::expect(::negate(false))'
+`  ::expect(::negate(::eq(hello|bye)))'
+`  ::expect(::eq(same|same))'
+`}
+
+%: one -> {1}
+
+%: {
+   :y:one
+   :x:copy(::one'_`:y'_`1)
+   ::expect(::eq(:x|1_1_1))
+}
+
+%: test_rule {}
+
+%: meta! {
+   assert true or throw 2.
+   assert not false or throw 3.
+   assert not (true and (false and false)) or throw 4.
+   assert rule test_rule exists or throw 5.
+   create namespace test_namespaceee with tag test_tag.
+   assert namespace test_namespaceee exists or throw 6.
+   assert namespace test_namespaceee has tag test_tag or throw 7.
+   assert not namespace test_namespaceee has tag some_other_tag or throw 8.
+
+   raw '%: test_rule_2 {}`.
+   assert rule test_rule_2 exists or throw 9.
+
+   string test = "hello".
+   string test = "bye".
+   raw '%: {::expect(::eq(::test|bye)_111)}`.
+   append " bye" to string test.
+   raw '%: {::expect(::eq(::test|bye bye))}`.
+   string other = string test.
+   raw '%: {::expect(::eq(::other|::test)_not_equal_7638)}`.
+}
+
+%: meta! {
+   syntax structured_test = param 
+      match all of
+         (({a}->{b} {c})?({d})+ or ({e}->{f} or ({g}))*) 
+      or 
+         {::rest} -> {error!}.
+}
+
+%: test_syntax {%: hello!} -> {%: result {} -> {true}}
+%: {::activate_rule(test_syntax)}
+
+%: result (clear) {}
+%: hello!
+%: {::expect(::result)}
+
+%: {::line_rest} -> {} %:{::throw_test_line_rest_failed}
+
+%: meta! {
+   syntax balanced_comments = balanced {//*} ... {*//}.
+}
+
+%: test_balanced_comments(::rest) -> {false}
+%: test_balanced_comments(::balanced_comments) -> {true}
+
+%: {::expect(::test_balanced_comments(//* hello //* world *////* ! *// *//))}
+%: {::expect(::test_balanced_comments(//**//))}
+%: {::expect_not(::test_balanced_comments(//* hello world *////* ! *// *//))}
+%: {::expect_not(::test_balanced_comments(//* hello //* world *////* ! *// *// *//))}
+
+
+}/remove_comments/

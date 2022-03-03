@@ -1,4 +1,4 @@
-target=swirl.0.2.0
+target=m5.0.2.0
 
 prj:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -7,21 +7,17 @@ all: build
 bin/$(target): src/main.rs
 	mkdir -p bin
 	cargo build --release
-	mv target/release/swirl bin/$(target)
-
-.PHONY: run
-run: build
-	cat input.txt | bin/$(target) > input.txt.out
+	mv target/release/m5 bin/$(target)
 
 .PHONY: test
 test:
-	cat src/test.swirl | swirl
+	cat src/test.m5 | m5
 
 .PHONY: build
 build:
 	mkdir -p bin
 	cargo build --release
-	mv target/release/swirl bin/$(target)
+	mv target/release/m5 bin/$(target)
 
 .PHONY: clean
 clean:
@@ -32,9 +28,8 @@ clean:
 global_link:
 	test $(base)
 	ln -sf $(prj)/bin/$(target) $(base)/bin/$(target)
-	ln -sf $(prj)/bin/$(target) $(base)/bin/swirl
-	ln -sf $(prj)/lib/swirl $(base)/lib/swirl
-	ln -sf $(prj)/bin/argswirl $(base)/bin/argswirl
+	ln -sf $(prj)/bin/$(target) $(base)/bin/m5
+	ln -sf $(prj)/lib/m5 $(base)/lib/m5
 
 .PHONY: global_unlink
 global_unlink:

@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 use crate::*;
 
-// for clarification: matches/applies a rule, not its definition (it has already been defined and read by swirl) 
+// for clarification: matches/applies a rule, not its definition (it has already been defined and read by m5) 
 
 impl Rule {
     /// start trying to apply rule variants from the bottom up, skipping a number of variants
@@ -32,32 +32,44 @@ impl Rule {
 
     pub fn is_macro_(name: &str) -> bool {
         [
-            "swirlcl",
-            "swirl_ident",
-            "swirl_rule_invoc",
-            "swirl_var",
-            "swirl_quote",
-            "swirl_quote_value",
-            "swirl_header",
-            "swirl_body",
-            "swirl_inner_rule_def",
-            "swirl_rule_def",
-            "swirl_file_invoc",
-            "swirl_print",
-            "swirl_rule_exists",
-            "swirl_verbose",
-            "swirl_load"
+            "m5cl",
+            "m5_ident",
+            "m5_rule_invoc",
+            "m5_var",
+            "m5_quote",
+            "m5_quote_value",
+            "m5_header",
+            "m5_body",
+            "m5_inner_rule_def",
+            "m5_rule_def",
+            "m5_file_invoc",
+            "m5_print",
+            "m5_rule_exists",
+            "m5_verbose",
+            "m5_load",
+            "m5_import"
         ].contains(&name)
     }
 
     /// try applying rule variants from the bottom up
     pub fn match_last<'a>(&self, input: &'a str, param: &str, rules: &Rules) -> MatchResult<(&'a str, String)> {
         if self.is_macro() {
-            if self.name == "swirl_load" {
+            if self.name == "m5_load" {
                 Ok((input, dump_file(param)
                     .map_err(|err| MatchError::new(format!("Error loading '{}': {}", param, err)))?))
             }
-            else if self.name == "swirl_verbose" {
+            else if self.name == "m5_import" {
+                let filepath = param;
+                let split = filepath.rfind('/');
+                let (dir, file) = match split {
+                    Some(split) => (&filepath[0..=split], &filepath[split..]),
+                    None => ("./", filepath)
+                };
+                unimplemented!();
+                Ok((input, dump_file(filepath)
+                    .map_err(|err| MatchError::new(format!("Error loading '{}': {}", param, err)))?))
+            }
+            else if self.name == "m5_verbose" {
                 unsafe {
                     if true || param == "y" {
                         VERBOSE = true;
@@ -67,7 +79,7 @@ impl Rule {
                 }
                 Ok((input, "".to_string()))
             }
-            else if self.name == "swirl_rule_exists" {
+            else if self.name == "m5_rule_exists" {
                 Ok((input, {
                     if rules.get(param).is_some() {
                         "t"
@@ -76,61 +88,61 @@ impl Rule {
                     }
                 }.to_string()))
             }
-            else if self.name == "swirl_print" {
+            else if self.name == "m5_print" {
                 print!("{}", param);
                 Ok((input, "".to_string()))
             }
-            else if self.name == "swirlcl" {
+            else if self.name == "m5cl" {
                 meval::eval_str(param)
                     .map(|result| (input, result.to_string().trim_end().to_string()))
                     .map_err(|e| MatchError::new(format!("{}", e)))
-            }  else if self.name == "swirl_rule_invoc" {
+            }  else if self.name == "m5_rule_invoc" {
                 let (after_input, _) = match_rule_invoc(input, rules)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_var" {
+            } else if self.name == "m5_var" {
                 let (after_input, _) = match_var(input)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_quote" {
+            } else if self.name == "m5_quote" {
                 let (_, after_input) = match_quote(input)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_quote_value" {
+            } else if self.name == "m5_quote_value" {
                 let (contained_text, after_input) = match_quote(input)?;
                 Ok((after_input, contained_text.to_string()))
-            } else if self.name == "swirl_header" {
-                let usage_err = MatchError::new("Correct usage: swirl_header({}) to match a header between curly braces.");
+            } else if self.name == "m5_header" {
+                let usage_err = MatchError::new("Correct usage: m5_header({}) to match a header between curly braces.");
                 let wrap_begin = param.chars().nth(0)
                     .ok_or(usage_err.clone())?;
                 let wrap_end = param.chars().nth(1)
                     .ok_or(usage_err)?;
-                let (after_input, maybe_invoc) = match_invocation_string_def(input, rules, wrap_begin, wrap_end, SWIRL_WHITESPACE_HANDLER_HEADER)?;
+                let (after_input, maybe_invoc) = match_invocation_string_def(input, rules, wrap_begin, wrap_end, M5_WHITESPACE_HANDLER_HEADER)?;
                 maybe_invoc.ok_or(MatchError::expected("Rule Header", input))?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_body" {
-                let usage_err = MatchError::new("Correct usage: swirl_body({}) to match a body between curly braces.");
+            } else if self.name == "m5_body" {
+                let usage_err = MatchError::new("Correct usage: m5_body({}) to match a body between curly braces.");
                 let wrap_begin = param.chars().nth(0)
                     .ok_or(usage_err.clone())?;
                 let wrap_end = param.chars().nth(1)
                     .ok_or(usage_err)?;
-                let (after_input, _) = match_invocation_string_def(input, rules, wrap_begin, wrap_end, SWIRL_WHITESPACE_HANDLER_BODY)?;
+                let (after_input, _) = match_invocation_string_def(input, rules, wrap_begin, wrap_end, M5_WHITESPACE_HANDLER_BODY)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_inner_rule_def" {
+            } else if self.name == "m5_inner_rule_def" {
                 let (after_input, _) = match_inner_rule_definition(input, rules)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_rule_def" {
+            } else if self.name == "m5_rule_def" {
                 let (after_input, _) = match_rule_definition(input, rules)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_file_invoc" {
+            } else if self.name == "m5_file_invoc" {
                 let (after_input, _) = match_file_invocation(input, rules)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))
-            } else if self.name == "swirl_ident" {
+            } else if self.name == "m5_ident" {
                 let (after_input, _) = match_ident(input)?;
                 let len = input.len() - after_input.len();
                 Ok((after_input, input[..len].to_string()))

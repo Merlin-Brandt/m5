@@ -1,0 +1,15 @@
+/target
+**/*.rs.bk
+
+hidden
+
+Cargo.lock
+
+perf.data
+
+perf.data.old
+
+.vscode/launch.json
+lib/m5/experimental/cfiles/*
+cargo-version.txt
+/bin

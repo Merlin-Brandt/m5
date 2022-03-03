@@ -248,7 +248,7 @@ pub fn match_invocation_string_def<'a>(input: &'a Input, rules: &Rules, wrap_beg
                     };
                     let result = whitespace_handling_rule.match_all(&input[..wh_count], param, rules)?;
                     let result = format!("({})", &result);
-                    let (result_rest, result) = match_invocation_string_def(&result, rules, '(', ')', SWIRL_WHITESPACE_HANDLER_BODY)?;
+                    let (result_rest, result) = match_invocation_string_def(&result, rules, '(', ')', M5_WHITESPACE_HANDLER_BODY)?;
                     let result = result.unwrap();
                     assert_eq!(result_rest, "");
                     invocation_string.add_invoc_str(&result);

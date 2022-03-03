@@ -76,7 +76,7 @@ pub fn match_rule_invoc<'a>(input: &'a Input, rules: &Rules) -> MatchResult<(&'a
     let (input, variable_ident) = match_ident(input).unwrap_or((input, ""));
     let input = match_char(input, RULE_INVOCATION_CHAR)?;
     let (input, rule_ident) = match_ident(input)?;
-    let (input, invoc) = match_invocation_string_def(input, rules, '(', ')', SWIRL_WHITESPACE_HANDLER_PARAM_INPUT)?;
+    let (input, invoc) = match_invocation_string_def(input, rules, '(', ')', M5_WHITESPACE_HANDLER_PARAM_INPUT)?;
     let invoc = invoc.unwrap_or(InvocationString::empty());
 
     (input, Invocation::new_rule_invoc_with_param(variable_ident, rule_ident, invoc)).tap(Ok)

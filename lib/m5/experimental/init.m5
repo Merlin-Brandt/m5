@@ -1,0 +1,4 @@
+%: cwd -> {../}
+%: {::m5_load(../init.m5)}
+%: {::m5_load(../lean_comments.m5)}
+%: {::m5_load(..//metatime.m5)}
