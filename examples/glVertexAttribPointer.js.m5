@@ -33,17 +33,17 @@ gl.h.vertexAttribute(the_vao, {
     %: {::m5_load(_impl/init.m5)}
 
     %: feature_vertex_layout {
-        !!:vao:alnum_s.vertex_layout = {:result:vertex_layout_buffer_blocks(:vao)::nwh};
+        !!:vao:alnum_s.vertex_layout = { :result:vertex_layout_buffer_blocks(:vao) } ;
     } -> {
         :result
     }
 
     %: no_tail_opt {}
     %: vertex_layout_buffer_blocks(:r:rest) {}
-    %: vertex_layout_buffer_blocks(:r:rest) {::nwh::vertex_layout_buffer_block(:r)::vertex_layout_buffer_blocks(:r)::no_tail_opt}
+    %: vertex_layout_buffer_blocks(:r:rest) {'` ::vertex_layout_buffer_block(:r) ::vertex_layout_buffer_blocks(:r) ::no_tail_opt}
 
     %: vertex_layout_buffer_block(:vao:alnum_s) {
-        buffer :buffer_name:alnum_s {
+        buffer' ` :buffer_name:alnum_s {
             :inputs:vertex_layout_inputs
         }
     } -> {
@@ -57,22 +57,22 @@ gl.h.vertexAttribute(the_vao, {
     }
 
     %: vertex_layout_inputs {}
-    %: vertex_layout_inputs {::nwh'vec`::09 ::alnum_s::nwh';`::vertex_layout_inputs}
+    %: vertex_layout_inputs {'` vec::09' ` ::alnum_s ; ::vertex_layout_inputs}
 
     %: vertex_attrib_calls(
-        vao = ::alnum_s,
-        vbo = ::alnum_s,
-        offset = ::uint,
-        stride = ::uint,
+        vao = ::alnum_s , ::nwh
+        vbo = ::alnum_s , ::nwh
+        offset = ::uint , ::nwh
+        stride = ::uint , ::nwh
         inputs = ::nwh
     ) {}
 
     %: vertex_attrib_calls(
-        vao = :vao:alnum_s,
-        vbo = :vbo:alnum_s,
-        offset = :offset:uint,
-        stride = :stride:uint,
-        inputs = vec:component_count:09 :input_name:alnum_s::nwh';`::nwh:other_inputs:vertex_layout_inputs
+        vao = :vao:alnum_s , ::nwh
+        vbo = :vbo:alnum_s , ::nwh
+        offset = :offset:uint , ::nwh
+        stride = :stride:uint , ::nwh
+        inputs = vec:component_count:09' ` :input_name:alnum_s ; :other_inputs:vertex_layout_inputs
     ) {} -> {
         gl.h.vertexAttribute(:vao, {
             attrib_name: ":input_name",
@@ -92,7 +92,7 @@ gl.h.vertexAttribute(the_vao, {
     }
 
     %: vertex_layout_inputs_stride() {} -> {0}
-    %: vertex_layout_inputs_stride(vec:n:09 ::alnum_s::nwh';`::nwh:rest:vertex_layout_inputs) {} -> {
+    %: vertex_layout_inputs_stride('` vec:n:09' ` ::alnum_s ; :rest:vertex_layout_inputs) {} -> {
         ::m5cl(:n * 4 + ::vertex_layout_inputs_stride(:rest))
     }
 

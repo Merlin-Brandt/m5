@@ -32,7 +32,7 @@
 
 // if an attribute was found, add a layout specifier to it.
 %: attribute_feature {
-    in :t:glsl_type :n:alnum_s::nwh;
+    'in ` :t:glsl_type' ` :n:alnum_s ;
 } -> {
 	::layout_inc in :t :n;
 }

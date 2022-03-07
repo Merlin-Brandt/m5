@@ -140,11 +140,12 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
             break;
         }
 
+        // all text until the current rule definition remains untouched (because it is between the beginning/a rule definition and a rule definition)
+        // so just push it to the result string
+        receive_output(skipped_text)?;
+
         match match_statement(statement_begin, rules) {
             Ok((statement_end, (name, maybe_variant))) => {
-                // all text until the current rule definition remains untouched (because it is between the beginning/a rule definition and a rule definition)
-                // so just push it to the result string
-                receive_output(skipped_text)?;
                 if !remove_defs {
                     receive_output(&statement_begin[..(statement_begin.len() - statement_end.len())])?;
                 }
