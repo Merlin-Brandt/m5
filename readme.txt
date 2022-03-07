@@ -10,3 +10,5 @@ source files are simply piped through m5 like this:
   $ cat glsl.m5 | m5
   $ cat asm.m5 | m5
   $ cat script.sh.m5 | m5 | sh
+  
+Another example of its usage: github.com/Merlin-Brandt/Cpp--Wasm--OpenGL--m5
