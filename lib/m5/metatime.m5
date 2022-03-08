@@ -63,7 +63,7 @@
 %: mangled_ident {::unimplemented}
 %: unmangled_ident {::unimplemented}
 
-%: {::m5_load(::cwd//structured.m5)}
+%: {::m5_load(structured.m5)}
 
 %: maybe_param {}
 %: maybe_param {param}

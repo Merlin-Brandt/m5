@@ -1,7 +1,0 @@
-%: cwd -> {../lib/m5/}
-%: {::m5_load(::cwd/init.m5)}
-
-%: -> {
-  %: cwd = {::cwd/experimental/asm/}
-}
-%: {::m5_load(::cwd/asm.m5)}

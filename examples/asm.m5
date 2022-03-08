@@ -1,5 +1,6 @@
 
-%: {::m5_load(_impl/asm_libraries.m5)}
+%: {::m5_load(init.m5.0.2)}
+%: {::m5_load(experimental/asm.m5)}
 
 Example of simple machine code analysis.
 Each 'push' and 'pop' instruction is broken down to its two sub-instructions,

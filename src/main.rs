@@ -14,7 +14,6 @@
 
 extern crate meval;
 
-
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -31,6 +30,17 @@ mod example_input;
 
 #[macro_use]
 extern crate lazy_static;
+
+use include_dir::{include_dir, Dir};
+use std::path::Path;
+
+static M5_LIBS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/lib/m5/");
+
+fn get_m5_lib(path: &str) -> Option<String> {
+    M5_LIBS.get_file(path)
+        .and_then(|file| file.contents_utf8())
+        .map(|contents| contents.to_string())
+}
 
 pub static mut BRACES: Option<Braces> = None;
 
@@ -76,60 +86,6 @@ pub fn find_statement(input: &Input) -> Option<(&str, &Input)> {
 
 use std::fs::File;
 
-pub fn match_statement<'a>(input: &'a Input, rules: &Rules) -> MatchResult<(&'a Input, (String, Option<RuleVariant>))> {
-    match match_rule_definition(input, rules) {
-        Ok((input, (name, variant))) => Ok((input, (name, Some(variant)))),
-        Err(def_err) => Err(def_err),
-    }
-}
-
-fn init_rules() -> Rules {
-    let mut rules = HashMap::new();
-    rules.insert("m5_default_call_explicit_syntax".to_string(), {
-        Rule::new("m5_default_call_explicit_syntax".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_feature_undefine_rule".to_string(), {
-        Rule::new("m5_feature_undefine_rule".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_new_quote_signs".to_string(), {
-        Rule::new("m5_new_quote_signs".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_version_0_0_1".to_string(), {
-        Rule::new("m5_version_0_0_1".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_version_0_0_2".to_string(), {
-        Rule::new("m5_version_0_0_2".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_version_0_0_3".to_string(), {
-        Rule::new("m5_version_0_0_3".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_version_0_1_0".to_string(), {
-        Rule::new("m5_version_0_1_0".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_version_0_2_0".to_string(), {
-        Rule::new("m5_version_0_2_0".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_load".to_string(), {
-        Rule::new("m5_load".to_string())
-            .variant(RuleVariant::empty())
-    });
-    rules.insert("m5_main".to_string(), {
-        Rule::new("m5_main".to_string())
-    });
-    rules.insert("m5_load_with_cwd".to_string(), {
-        Rule::new("m5_load_with_cwd".to_string())
-    });
-    rules
-}
-
 pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remove_defs: bool, mut receive_output: impl FnMut(&str) -> MatchResult<()>) -> MatchResult<()> {
     let mut input = input.to_string();
 
@@ -144,38 +100,36 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
         // so just push it to the result string
         receive_output(skipped_text)?;
 
-        match match_statement(statement_begin, rules) {
-            Ok((statement_end, (name, maybe_variant))) => {
+        match match_rule_definition(statement_begin, rules) {
+            Ok((statement_end, (name, variant))) => {
                 if !remove_defs {
                     receive_output(&statement_begin[..(statement_begin.len() - statement_end.len())])?;
                 }
 
                 // add variant to definitions (or remove) (perhaps call it)
-                if let Some(variant) = maybe_variant {
-                    let name = || name.clone();
-                    let rule_entry = rules.entry(name()).or_insert(Rule::new(name()));
-                    let name = name();
+                let name = || name.clone();
+                let rule_entry = rules.entry(name()).or_insert(Rule::new(name()));
+                let name = name();
 
-                    // next portion to process is after the current rule definition
-                    input = statement_end.to_string();
+                // next portion to process is after the current rule definition
+                input = statement_end.to_string();
 
-                    if variant.is_undefine() {
-                        rules.remove(&name);
-                    } else {
-                        rule_entry.variants.push(variant.clone());
+                if variant.is_undefine() {
+                    rules.remove(&name);
+                } else {
+                    rule_entry.variants.push(variant.clone());
 
-                        // empty name means invocation
-                        if name.is_empty() {
-                            // next portion to process is the output of application of the current rule definition (piped to all previous unnamed rule definitions)
-                            let new_input = rules[&name].match_sequence(&input, rules, &mut appleft)?;
-                            // if this rule was just to be applied once, remove from definitions
-                            if variant.shallow_call() {
-                                rules.get_mut(&name).unwrap().variants.pop().unwrap();
-                            }
-                            input = new_input;
+                    // empty name means invocation
+                    if name.is_empty() {
+                        // next portion to process is the output of application of the current rule definition (piped to all previous unnamed rule definitions)
+                        let new_input = rules[&name].match_sequence(&input, rules, &mut appleft)?;
+                        // if this rule was just to be applied once, remove from definitions
+                        if variant.shallow_call() {
+                            rules.get_mut(&name).unwrap().variants.pop().unwrap();
                         }
-
+                        input = new_input;
                     }
+
                 }
             },
             Err(def_err) => {
@@ -272,3 +226,47 @@ fn main()  {
     }
 }
 
+
+fn init_rules() -> Rules {
+    let mut rules = HashMap::new();
+    rules.insert("m5_default_call_explicit_syntax".to_string(), {
+        Rule::new("m5_default_call_explicit_syntax".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_feature_undefine_rule".to_string(), {
+        Rule::new("m5_feature_undefine_rule".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_new_quote_signs".to_string(), {
+        Rule::new("m5_new_quote_signs".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_version_0_0_1".to_string(), {
+        Rule::new("m5_version_0_0_1".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_version_0_0_2".to_string(), {
+        Rule::new("m5_version_0_0_2".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_version_0_0_3".to_string(), {
+        Rule::new("m5_version_0_0_3".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_version_0_1_0".to_string(), {
+        Rule::new("m5_version_0_1_0".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_version_0_2_0".to_string(), {
+        Rule::new("m5_version_0_2_0".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_load".to_string(), {
+        Rule::new("m5_load".to_string())
+            .variant(RuleVariant::empty())
+    });
+    rules.insert("m5_main".to_string(), {
+        Rule::new("m5_main".to_string())
+    });
+    rules
+}

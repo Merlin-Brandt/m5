@@ -1,4 +1,4 @@
-%: {::m5_load(_impl/bash_libraries.m5)}
+%: {::m5_load(init.m5.0.2)}
 
 # transpile C control structures to bash control structures
 

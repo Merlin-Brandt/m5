@@ -1,4 +1,5 @@
 %: {::init_m5}
+%: cwd -> {experimental/asm}
 %: {::m5_load(::cwd/whitespace_handler.m5)}
 
 %: next_process_line {:r:rest} -> {'%: {::process_asm}`:r}

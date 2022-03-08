@@ -10,7 +10,7 @@
  *  Some simple macroprocessor rules will solve this syntactical problem.
  */
 
-%: {::m5_load(_impl/init.m5)}
+%: {::m5_load(init.m5.0.2)}
 
 // define a glsl_type token. 
 %: glsl_type {vec::09}

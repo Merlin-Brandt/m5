@@ -1,11 +1,10 @@
 
-%: cwd -> {lib//m5//}
-%: {::m5_load(::cwd//init.m5.0.1)}
+%: {::m5_load(init.m5.0.1)}
 
 %::new_rule {}
 
-%: {::m5_load(::cwd//lean_comments.m5)}
-%: {::m5_load(::cwd//metatime.m5)}
+%: {::m5_load(lean_comments.m5)}
+%: {::m5_load(metatime.m5)}
 
 %: {::remove_comments} {
 
@@ -53,7 +52,7 @@
 %: {::expect(::eq(::test_rule_6(thisisatest)|error!))}
 
 %: meta! {
-   type string_list = list of {::c_quote}.
+   type string_list = list of {::c_quote} .
 }
 
 %: test_string_list(::rest) -> {false}

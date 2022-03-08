@@ -30,7 +30,7 @@ gl.h.vertexAttribute(the_vao, {
 // so quickly write up some macros...
 
 /*
-    %: {::m5_load(_impl/init.m5)}
+    %: {::m5_load(init.m5.0.2)}
 
     %: feature_vertex_layout {
         !!:vao:alnum_s.vertex_layout = { :result:vertex_layout_buffer_blocks(:vao) } ;

@@ -47,7 +47,7 @@ impl Rule {
             "m5_rule_exists",
             "m5_verbose",
             "m5_load",
-            "m5_import"
+            "m5_import",
         ].contains(&name)
     }
 
@@ -55,10 +55,17 @@ impl Rule {
     pub fn match_last<'a>(&self, input: &'a str, param: &str, rules: &Rules) -> MatchResult<(&'a str, String)> {
         if self.is_macro() {
             if self.name == "m5_load" {
-                Ok((input, dump_file(param)
-                    .map_err(|err| MatchError::new(format!("Error loading '{}': {}", param, err)))?))
+                let path = param;
+                Ok((input, dump_file(path)
+                    .or_else(|err| {
+                        if let Some(contents) = get_m5_lib(path) {
+                            Ok(contents)
+                        } else {
+                            MatchError::new(format!("Error loading '{}': {}", param, err)).tap(Err)                         
+                        }
+                    })?))
             }
-            else if self.name == "m5_import" {
+            /*else if self.name == "m5_import" {
                 let filepath = param;
                 let split = filepath.rfind('/');
                 let (dir, file) = match split {
@@ -68,7 +75,7 @@ impl Rule {
                 unimplemented!();
                 Ok((input, dump_file(filepath)
                     .map_err(|err| MatchError::new(format!("Error loading '{}': {}", param, err)))?))
-            }
+            }*/
             else if self.name == "m5_verbose" {
                 unsafe {
                     if true || param == "y" {

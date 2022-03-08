@@ -1,7 +1,7 @@
 %: init_m5 {}
 %: init_m5_0_1 {}
 %: init_m5_0_1_1 {}
-%: {::m5_load(::cwd/init/predefined.m5)}
+%: {::m5_load(init/predefined.m5)}
 %: print (print) {}
 %: groups_m5 {}
 %: 1wh {' `}
@@ -33,7 +33,7 @@
 %: opaquechar {::not_whitespace::anychar}
 %: not_whitespace (not) {::whitespace}
 
-%: {::m5_load(::cwd/lean_comment.m5)}
+%: {::m5_load(lean_comment.m5)}
 
 %: {::remove_comments} {
 
@@ -82,7 +82,7 @@
 %: raise_quote2(:r:rest) -> {::raise_quote(::raise_quote(:r))}
 %: raise_braced_quote(:r:rest) -> {'{`«'»:r«`»'}`}
 
-%: {::m5_load(::cwd//init//whitespace_handler.m5)}
+%: {::m5_load(init//whitespace_handler.m5)}
 
 /warning: might not work/
 %: not (not) (:r:rest) {:r}
