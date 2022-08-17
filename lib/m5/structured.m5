@@ -1,24 +1,24 @@
-%: {::lean_comment_m5::groups_m5}
+%: {::init_m5_0_2}
+%::structured_m5 {}
+
 
 %: {::remove_comments} {
 
-%: {::use_whitespace_handler('in body remove all whitespace and in header replace with ::nwh`)} {
-
 /for all uses of nameless_rule below, flags arent really supported. so maybe replace them with a checked ::unflagged_nameless_rule version./
 
-%::flag {(::alnum_s)}
-%::flags {}
-%: flags {::flag::nwh::flags}
+/%::flag {(::alnum_s)}    /
+/%::flags {}              /
+/%: flags {::flag ::flags}/
 %: (undefine) flags {}
 %: flags {}
 
-%::header_or_param_header {::m5_header({})}
+ %::header_or_param_header {::m5_header({})}
 /%: header_or_param_header {::m5_header(())}/
 %::nameless_rule {::header_or_param_header}
-%: nameless_rule {::header_or_param_header -> ::m5_body({})::nwh::maybe_catch_body}
+%: nameless_rule {::header_or_param_header -> ::m5_body({}) ::maybe_catch_body}
 
 %::maybe_catch_body {}
-%: maybe_catch_body {(catch unknown rule)::nwh::m5_body({})}
+%: maybe_catch_body {(catch unknown rule) ::m5_body({})}
 
 %::rule_combination {::seq_chain_combination} /1<=simple/
 %: rule_combination {::or_chain_combination} /2<=seq/
@@ -38,19 +38,27 @@
     %: rule_postfix_op {?}
     %::rule_prefix_op {}
     %: rule_prefix_op {!}
-    %: rule_prefix_op {match all of::nwh}
+    %: rule_prefix_op {match all of '`}
 
 /unfold/ /{/
-    %: unfold {-combination(:pre:rule_prefix_op:header:header_or_param_header:post:rule_postfix_op) -on(:prefix:c_ident) .} -> {
-        %: «{::unfold}» -combination(:pre(:header):post) -on(:prefix).
+    %: unfold {
+        -combination(:pre:rule_prefix_op/ /:header:header_or_param_header/ /:post:rule_postfix_op) 
+        -on(:prefix:c_ident) 
+        -def(:def:def_directive) .
+    } -> {
+        %: «{::unfold}» -combination(:pre(:header):post) -on(:prefix) -def(:def).
     }
 
-    %: unfold {-combination(:r:nameless_rule) -on(:prefix:c_ident) .} -> {
-        %; :prefix :r
+    %: unfold {
+        -combination(:r:nameless_rule) '`
+        -on(:prefix:c_ident) '`
+        -def(:def:def_directive) .
+    } -> {
+        :def :prefix :r
     }
 
-    %: unfold {-combination(( :r:rule_combination )) -on(:prefix:c_ident) .} -> {
-        %: «{::unfold}» -combination(:r) -on(:prefix).
+    %: unfold {-combination(( :r:rule_combination )) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        %: «{::unfold}» -combination(:r) -on(:prefix) -def(:def).
     }
 
     / the + syntax could be optimized from  /
@@ -61,36 +69,36 @@
     /   %: maybe_rule {::inner::maybe_rule} /
     /   %: maybe_rule {}                    /
 
-    %: unfold {-combination(( :r:rule_combination )+) -on(:prefix:c_ident) .} -> {
-        %; :prefix {«::»:prefix«»_1n}
-        %; :prefix {«::»:prefix«»_1n«::»:prefix}
-        %: {«::unfold»} -combination(:r) -on(:prefix«»_1n).
+    %: unfold {-combination(( :r:rule_combination )+) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        :def :prefix {«::»:prefix«»_1n}
+        :def :prefix {«::»:prefix«»_1n/ /«::»:prefix}
+        %: {«::unfold»} -combination(:r) -on(:prefix«»_1n) -def(:def).
     }    
 
-    %: unfold {-combination(( :r:rule_combination )*) -on(:prefix:c_ident) .} -> {
-        %; :prefix {}
-        %; :prefix {«::»:prefix«»_n«::»:prefix}
-        %: {«::unfold»} -combination(:r) -on(:prefix«»_n).
+    %: unfold {-combination(( :r:rule_combination )*) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        :def :prefix {}
+        :def :prefix {«::»:prefix«»_n/ /«::»:prefix}
+        %: {«::unfold»} -combination(:r) -on(:prefix«»_n) -def(:def).
     }
 
-    %: unfold {-combination(match all of ( :r:rule_combination )) -on(:prefix:c_ident) .} -> {
-        %; :prefix {«::»:prefix«»_ma«:rst:rest::assert_empty(:rst)»}
-        %: {«::unfold»} -combination(:r) -on(:prefix«»_ma).
+    %: unfold {-combination(match all of ( :r:rule_combination )) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        :def :prefix {«::»:prefix«»_ma«/ /:rst:rest::assert_empty(:rst)»}
+        %: {«::unfold»} -combination(:r) -on(:prefix«»_ma) -def(:def).
     }
 
-    %: unfold {-combination(( :r:rule_combination )?) -on(:prefix:c_ident) .} -> {
-        %; :prefix {}
-        %; :prefix {«::»:prefix«»_maybe}
-        %: {«::unfold»} -combination(:r) -on(:prefix«»_maybe).
+    %: unfold {-combination(( :r:rule_combination )?) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        :def :prefix {}
+        :def :prefix {«::»:prefix«»_maybe}
+        %: {«::unfold»} -combination(:r) -on(:prefix«»_maybe) -def(:def).
     }
 
-    %: unfold {-combination(!( :r:rule_combination )) -on(:prefix:c_ident) .} -> {
-        %; (not) :prefix {«::»:prefix«»_not}
-        %: {«::unfold»} -combination(:r) -on(:prefix«»_not).
+    %: unfold {-combination(!( :r:rule_combination )) -on(:prefix:c_ident) -def(:def:def_directive) .} -> {
+        :def (not) :prefix {«::»:prefix«»_not}
+        %: {«::unfold»} -combination(:r) -on(:prefix«»_not) -def(:def).
     }
 
-    %: unfold_arg_postfix {::nwh} -> {_t}
-    %: unfold_arg_postfix {-postfix(:p:c_ident) ::nwh} -> {:p}
+    %: unfold_arg_postfix {'` '`} -> {_t}
+    %: unfold_arg_postfix {-postfix(:p:c_ident) '`} -> {:p}
 
     / an example sequence chain {first}({second})+ will be unfolded on "prefix" as follows:
       first unfold the subrules:
@@ -102,10 +110,10 @@
 
     %: unfold {
         -combination(:head:rule_combination_simple :rest:seq_chain_combination) '`
-        -on(:prefix:c_ident) .
+        -on(:prefix:c_ident) -def(:def:def_directive) .
     } -> {
-        %: {«::unfold_seq_subrules»} -combination(:head :rest) -on(:prefix«»_s).
-        %: {«::unfold_seq_stemrule»} -combination(:head :rest) -on(:prefix).
+        %: {«::unfold_seq_subrules»} -combination(:head :rest) -on(:prefix«»_s) -def(:def).
+        %: {«::unfold_seq_stemrule»} -combination(:head :rest) -on(:prefix) -def(:def).
     }
 
     %: unfold_seq_steminvocs (
@@ -124,72 +132,79 @@
         «::»:prefix :other_invocs
     }
 
-
     %: unfold_seq_stemrule {
         -combination(:head:rule_combination_simple :rest:seq_chain_combination) '`
-        -on(:prefix:c_ident) .
+        -on(:prefix:c_ident) -def(:def:def_directive) .
         :invocs:unfold_seq_steminvocs(-combination(:head :rest) -on(:prefix«»_s))
     } -> {
-        %; :prefix {:invocs}
+        :def :prefix {:invocs}
     }
 
     %: unfold_seq_subrules {
         -combination(:head:rule_combination_simple) '`
-        -on(:prefix:c_ident) .
+        -on(:prefix:c_ident) -def(:def:def_directive) .
     } -> {
-        %: {«::unfold»} -combination(:head) -on(:prefix).
+        %: {«::unfold»} -combination(:head) -on(:prefix) -def(:def).
     }
 
     %: unfold_seq_subrules {
         -combination(:head:rule_combination_simple :rest:seq_chain_combination) '`
-        -on(:prefix:c_ident) .
+        -on(:prefix:c_ident) -def(:def:def_directive) .
     } -> {
-        %: {«::unfold»} -combination(:head) -on(:prefix).
-        %: {«::unfold_seq_subrules»} -combination(:rest) -on(:prefix«»s).
+        %: {«::unfold»} -combination(:head) -on(:prefix) -def(:def).
+        %: {«::unfold_seq_subrules»} -combination(:rest) -on(:prefix«»s) -def(:def).
     }
 
     %: unfold {
         -combination(:head:seq_chain_combination or :tail:seq_chain_combination) '`
         -on(:prefix:c_ident) '`
-        :postfix:unfold_arg_postfix .
+        :postfix:unfold_arg_postfix '`
+        -def(:def:def_directive) .
     } -> {
-        %: «{::unfold}» -combination(:tail) -on(:prefix«»:postfix«»t).
-        %: «{::unfold}» -combination(:head) -on(:prefix«»:postfix).
-        %; :prefix {«::»:prefix«»:postfix«»t}
-        %; :prefix {«::»:prefix«»:postfix}
+        %: «{::unfold}» -combination(:tail) -on(:prefix«»:postfix«»t) -def(:def).
+        %: «{::unfold}» -combination(:head) -on(:prefix«»:postfix) -def(:def).
+        :def :prefix {«::»:prefix«»:postfix«»t}
+        :def :prefix {«::»:prefix«»:postfix}
     }
 
     %: unfold {
         -combination(:head:seq_chain_combination or :rest:or_chain_combination) '`
         -on(:prefix:c_ident) '`
-        :postfix:unfold_arg_postfix .
+        :postfix:unfold_arg_postfix '`
+        -def(:def:def_directive).
     } -> {
-        %: «{::unfold}» -combination(:rest) -on(:prefix) -postfix(:postfix«»t).
-        %: «{::unfold}» -combination(:head) -on(:prefix«»:postfix).
-        %; :prefix {«::»:prefix«»:postfix}
+        %: «{::unfold}» -combination(:rest) -on(:prefix) -postfix(:postfix«»t) -def(:def).
+        %: «{::unfold}» -combination(:head) -on(:prefix«»:postfix) -def(:def).
+        :def :prefix {«::»:prefix«»:postfix}
     }
 /}/
 
-%: maybe_rule_header {}
+%::maybe_rule_header {}
 %: maybe_rule_header {::m5_header(())}
 
-%: maybe_v {}
+%::maybe_v {}
 %: maybe_v {verbose } -> {(print)}
-%: maybe_v {v} -> {(print)}
-%: structured_rule(:vf:maybe_v:ruleName:c_ident = :root:rule_combination) -> {
+
+%::def_directive_in {} -> {'%:`}
+%: def_directive_in {compile' `} -> {%%: -> {'':``}}
+
+%::def_directive {'%:`}
+%: def_directive {%%: -> {'':``}}
+
+%: structured_rule(:vf:maybe_v:def:def_directive_in:ruleName:c_ident = :root:rule_combination) -> {
     %: '{::unfold}`
         -combination(:root)
-        -on(:ruleName'`_v).
-    %; :vf :ruleName {«::»:ruleName'`_v}
+        -on(:ruleName'`_v)
+        -def(:def).
+    :def :vf :ruleName {«::»:ruleName'`_v}
 }
 
-%: structured_rule(:ruleName:c_ident = param :root:rule_combination) -> {
+%: structured_rule(:def:def_directive_in:ruleName:c_ident = param :root:rule_combination) -> {
     %: '{::unfold}` 
         -combination(:root)
-        -on(:ruleName'_p`).
-    %; :ruleName (':r:`:ruleName'_p`) -> {«:r»}
+        -on(:ruleName'_p`)
+        -def(:def).
+    :def :ruleName (':r:`:ruleName'_p`) -> {«:r»}
 }
-
-} /use_whitespace_handler/
 
 }/remove_comments/

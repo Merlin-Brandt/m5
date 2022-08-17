@@ -11,57 +11,71 @@
 %: get_newline -> {'
 `}
 
-%: define_whitespace_handler('replace with `:r:rest) -> {'
-    %: (undefine) m5_whitespace_handler_header {}
-    %: m5_whitespace_handler_header('begin`) {::rest} -> {}
-    %: m5_whitespace_handler_header('end`) {::rest} -> {}
-    %: m5_whitespace_handler_header('between lines`) {::rest} -> {}
-    %: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}
+/%: {::define_whitespace_handler('replace with ::1nwh`)}/
+    %: (undefine) m5_whitespace_handler_header {}                                   
+    %: m5_whitespace_handler_header('begin`) {::rest} -> {}                         
+    %: m5_whitespace_handler_header('end`) {::rest} -> {}                           
+    %: m5_whitespace_handler_header('between lines`) {::rest} -> {}                 
+    %: m5_whitespace_handler_header('within line`) {::rest} -> {'::1nwh`}
 
     / trim beginning and end but keep indentation and empty lines (perhaps remove one level of indentation) /
-    %: (undefine) m5_whitespace_handler_body {}
-    %: m5_whitespace_handler_body('begin`) {:r:rest} -> {}
-    %: m5_whitespace_handler_body('end`) {::rest} -> {}
-    %: m5_whitespace_handler_body('between lines`) {:r:rest} -> {'::get_newline`}
-    %: m5_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}
+    %: (undefine) m5_whitespace_handler_body {}                                       
+    %: m5_whitespace_handler_body('begin`) {:r:rest} -> {}                            
+    %: m5_whitespace_handler_body('end`) {::rest} -> {}                               
+    %: m5_whitespace_handler_body('between lines`) {:r:rest} -> {} /{'::get_newline`}/
+    %: m5_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}              
 
-    %: current_whitespace_handler -> {`«'»'replace with `:r«`»'}
-`}
+    %: current_whitespace_handler -> {'replace with ::1nwh`}
 
-%: define_whitespace_handler('replace everywhere in header with `:r:rest) -> {'
-    %: (undefine) m5_whitespace_handler_header {}
-    %: m5_whitespace_handler_header('begin`) {::rest} -> {`::raise_quote(:r)'}
-    %: m5_whitespace_handler_header('end`) {::rest} -> {`::raise_quote(:r)'}
-    %: m5_whitespace_handler_header('between lines`) {::rest} -> {`::raise_quote(:r)'}
-    %: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}
+%: define_whitespace_handler('replace with `:r:rest) -> {
+    
+    '%: (undefine) m5_whitespace_handler_header {}                                   `
+    '%: m5_whitespace_handler_header('begin`) {::rest} -> {}                         `
+    '%: m5_whitespace_handler_header('end`) {::rest} -> {}                           `
+    '%: m5_whitespace_handler_header('between lines`) {::rest} -> {}                 `
+    '%: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}`
+    
+    / trim beginning and end but keep indentation and empty lines (perhaps remove one level of indentation) /
+    '%: (undefine) m5_whitespace_handler_body {}                                       `
+    '%: m5_whitespace_handler_body('begin`) {:r:rest} -> {}                            `
+    '%: m5_whitespace_handler_body('end`) {::rest} -> {}                               `
+    '%: m5_whitespace_handler_body('between lines`) {:r:rest} -> {} /{'::get_newline`}/`
+    '%: m5_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}              `
+    '%: current_whitespace_handler -> {`«'»'replace with `:r«`»'}`
+}
+
+%: define_whitespace_handler('replace everywhere in header with `:r:rest) -> {
+    '%: (undefine) m5_whitespace_handler_header {}                                     `
+    '%: m5_whitespace_handler_header('begin`) {::rest} -> {`::raise_quote(:r)'}        `
+    '%: m5_whitespace_handler_header('end`) {::rest} -> {`::raise_quote(:r)'}          `
+    '%: m5_whitespace_handler_header('between lines`) {::rest} -> {`::raise_quote(:r)'}`
+    '%: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}  `
 
     / trim beginning and end but keep indentation and empty lines (perhaps remove one level of indentation) /
-    %: (undefine) m5_whitespace_handler_body {}
-    %: m5_whitespace_handler_body('begin`) {:r:rest} -> {«'»::remove_first_line(:r)«`»}
-    %: m5_whitespace_handler_body('end`) {::rest} -> {}
-    %: m5_whitespace_handler_body('between lines`) {:r:rest} -> {«'»:r«`»}
-    %: m5_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}
+    '%: (undefine) m5_whitespace_handler_body {}                                        `
+    '%: m5_whitespace_handler_body('begin`) {:r:rest} -> {«'»::remove_first_line(:r)«`»}`
+    '%: m5_whitespace_handler_body('end`) {::rest} -> {}                                `
+    '%: m5_whitespace_handler_body('between lines`) {:r:rest} -> {«'»:r«`»}             `
+    '%: m5_whitespace_handler_body('within line`) {:r:rest} -> {«'»:r«`»}               `
 
-    %: current_whitespace_handler -> {`«'»'replace with `:r«`»'}
-`}
+    '%: current_whitespace_handler -> {`«'»'replace with `:r«`»'}`
+}
 
-%: define_whitespace_handler('in body remove all whitespace and in header replace with `:r:rest) -> {'
-    %: (undefine) m5_whitespace_handler_header {}
-    %: m5_whitespace_handler_header('begin`) {::rest} -> {}
-    %: m5_whitespace_handler_header('end`) {::rest} -> {}
-    %: m5_whitespace_handler_header('between lines`) {::rest} -> {}
-    %: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}
+%: define_whitespace_handler('in body remove all whitespace and in header replace with `:r:rest) -> {
+    '%: (undefine) m5_whitespace_handler_header {}                                   `
+    '%: m5_whitespace_handler_header('begin`) {::rest} -> {}                         `
+    '%: m5_whitespace_handler_header('end`) {::rest} -> {}                           `
+    '%: m5_whitespace_handler_header('between lines`) {::rest} -> {}                 `
+    '%: m5_whitespace_handler_header('within line`) {::rest} -> {`::raise_quote(:r)'}`
 
-    %: (undefine) m5_whitespace_handler_body {}
-    %: m5_whitespace_handler_body('begin`) {:r:rest} -> {}
-    %: m5_whitespace_handler_body('end`) {::rest} -> {}
-    %: m5_whitespace_handler_body('between lines`) {:r:rest} -> {}
-    %: m5_whitespace_handler_body('within line`) {:r:rest} -> {}
+    '%: (undefine) m5_whitespace_handler_body {}                   `
+    '%: m5_whitespace_handler_body('begin`) {:r:rest} -> {}        `
+    '%: m5_whitespace_handler_body('end`) {::rest} -> {}           `
+    '%: m5_whitespace_handler_body('between lines`) {:r:rest} -> {}`
+    '%: m5_whitespace_handler_body('within line`) {:r:rest} -> {}  `
 
-    %: current_whitespace_handler -> {`«'»'replace with `:r«`»'}
-`}
-
-%: {::define_whitespace_handler('replace with ::1nwh`)}
+    '%: current_whitespace_handler -> {`«'»'replace with `:r«`»'}`
+}
 
 %: define_whitespace_handler('remove all whitespace`) -> {'
     %: (undefine) m5_whitespace_handler_header {}
@@ -83,23 +97,15 @@
 %: maybe_for {}
 %: maybe_for {for::nwh}
 
-%: define_late_whitespace_handler_methods -> {«
-    %: use_whitespace_handler(:handler:rest) {::maybe_for{:content:balanced_curly_inner}} -> {«
-        %: -> {«
-            %: {::define_whitespace_handler(»''»:handler«``«)}
-                »'»:content«`«
-            %: {::define_whitespace_handler('»::current_whitespace_handler«`)}
-        »}
-    »}
-    %: use_whitespace_handler_debug(:handler:rest) {::maybe_for{:content:balanced_curly_inner}} -> {«
-        %; -> {«
-            %; {::define_whitespace_handler(»''»:handler«``«)}
-                »'»:content«`«
-            %; {::define_whitespace_handler('»::current_whitespace_handler«`)}
-        »}
-        %: {::quit}
-    »}
-    %: (undefine) define_late_whitespace_handler_methods {}
-»}
+%: define_late_whitespace_handler_methods -> {
+    «%: use_whitespace_handler(:handler:rest) {::maybe_for{:content:balanced_curly_inner}} -> {»
+    «    «%: -> {                                                                 »            »
+    «    «    «%: {::define_whitespace_handler(»''»:handler«``«)}                »»            »
+    «    «    «   »'»:content«`«                                                 »»            »
+    «    «    «%: {::define_whitespace_handler('»::current_whitespace_handler«`)}»»            »
+    «    «}                                                                       »            »
+    «}                                                                                         »
+    «%: (undefine) define_late_whitespace_handler_methods {}                                   »
+}
 
 }/remove_comments/

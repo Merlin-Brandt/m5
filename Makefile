@@ -15,6 +15,7 @@ test:
 
 .PHONY: build
 build:
+	touch src/main.rs
 	mkdir -p bin
 	cargo build --release
 	mv target/release/m5 bin/$(target)
@@ -29,7 +30,7 @@ global_link:
 	test $(base)
 	ln -sf $(prj)/bin/$(target) $(base)/bin/$(target)
 	ln -sf $(prj)/bin/$(target) $(base)/bin/m5
-	ln -sf $(prj)/lib/m5 $(base)/lib/m5
+	ln -sf $(prj)/bin/m5bash $(base)/bin/m5bash
 
 .PHONY: global_unlink
 global_unlink:

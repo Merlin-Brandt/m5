@@ -23,12 +23,12 @@
 %: attribute_number -> {0}
 
 // place layout specifier and increment attribute number
-%: layout_inc -> {'
-	%: -> {'
-	    layout(location=`::attribute_number')
-		%: attribute_number = {`::m5cl(::attribute_number + 1)'}
-	`}
-`}  
+%: layout_inc -> {
+	'%: -> {                                                       `
+	'    'layout(location=`::attribute_number')                   ``
+	'	 '%: attribute_number = {`::m5cl(::attribute_number + 1)'}``
+	'}                                                             `
+}  
 
 // if an attribute was found, add a layout specifier to it.
 %: attribute_feature {

@@ -13,3 +13,4 @@
 %: m5_print (predefined) {::throw_predefined_rule}
 %: m5_rule_exists (predefined) {::throw_predefined_rule}
 %: m5_verbose (predefined) {::throw_predefined_rule}
+%: m5_print_defs (predefined) {::throw_predefined_rule}

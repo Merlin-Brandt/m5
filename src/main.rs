@@ -86,7 +86,7 @@ pub fn find_statement(input: &Input) -> Option<(&str, &Input)> {
 
 use std::fs::File;
 
-pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remove_defs: bool, mut receive_output: impl FnMut(&str) -> MatchResult<()>) -> MatchResult<()> {
+pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, _remove_defs: bool, mut receive_output: impl FnMut(&str) -> MatchResult<()>) -> MatchResult<()> {
     let mut input = input.to_string();
 
     while let Some((skipped_text, statement_begin)) = find_statement(&input) {
@@ -102,7 +102,7 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
 
         match match_rule_definition(statement_begin, rules) {
             Ok((statement_end, (name, variant))) => {
-                if !remove_defs {
+                if !do_removedefs() {
                     receive_output(&statement_begin[..(statement_begin.len() - statement_end.len())])?;
                 }
 
@@ -151,12 +151,12 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, remov
     Ok(())
 }
 
-fn process_file(target: &str, steps: MaybeInf<u32>, remove_defs: bool) -> Result<(), Box<dyn Error>> {
+fn process_file(target: &str, steps: MaybeInf<u32>, _remove_defs: bool) -> Result<(), Box<dyn Error>> {
     let mut buffer = String::new();
     File::open(&target)?.read_to_string(&mut buffer)?;
     
     let mut result = String::new();
-    process(&buffer, &mut init_rules(), steps, remove_defs, |lines| result.push_str(lines).tap(Ok))?;
+    process(&buffer, &mut init_rules(), steps, _remove_defs, |lines| result.push_str(lines).tap(Ok))?;
 
     File::create(format!("{}.out", target))?.write(result.as_bytes())?;
 
@@ -167,15 +167,20 @@ use std::io::{self, Read, Write};
 use std::error::Error;
 
 static mut VERBOSE: bool = false; 
+static mut remove_defs: bool = false;
 
 pub fn is_verbose() -> bool {
     return unsafe {VERBOSE};
 }
 
+pub fn do_removedefs() -> bool {
+    return unsafe {remove_defs};
+}
+
 //#[cfg(not(debug_assertions))]
 fn main()  {
     let is_stepping = std::env::args().any(|s| s == "--step" || s == "-s");
-    let remove_defs = !std::env::args().any(|s| s == "--print-defs" || s == "-d");
+    unsafe { remove_defs = !std::env::args().any(|s| s == "--print-defs" || s == "-d") };
     let repl = std::env::args().any(|s| s == "--repl");
     unsafe { VERBOSE = std::env::args().any(|s| s == "--verbose" || s == "-v") };
 
@@ -197,7 +202,7 @@ fn main()  {
         let mut buffer = String::new();
         io::stdin().read_to_string(&mut buffer)
             .map_err(|e| eprintln!("{}", e)).unwrap();
-        process(&buffer, &mut init_rules(), steps, remove_defs, |lines| {
+        process(&buffer, &mut init_rules(), steps, do_removedefs(), |lines| {
             print!("{}", lines);
             io::stdout().flush().unwrap();
             Ok(())
@@ -211,14 +216,14 @@ fn main()  {
     
         print!(" $ ");
         io::stdout().flush().unwrap();
-    
+
         while stdin.read_line(&mut userline).is_ok() {
-            process(&userline, &mut rules, steps, remove_defs, |lines| {
+            let _ = process(&userline, &mut rules, steps, do_removedefs(), |lines| {
                 print!("{}", lines);
                 Ok(())
             }).map_err(|e| {
                 eprintln!("{}", e);
-            }).unwrap();
+            });
             print!(" $ ");
             io::stdout().flush().unwrap();
             userline.clear();

@@ -1,10 +1,6 @@
-
-%: {::m5_load(init.m5.0.1)}
-
-%::new_rule {}
+%: {::m5_load(init.m5.0.2)}
 
 %: {::m5_load(lean_comments.m5)}
-%: {::m5_load(metatime.m5)}
 
 %: {::remove_comments} {
 
@@ -20,21 +16,21 @@
 }
 %: expect(true::rest) {} -> {}
 
-%: expect_eq(:r:rest) -> {::expect(::eq(:r))}
+%: expect_eq(:r:rest) -> {::expect(::eq(:r)_3476)}
 %: expect_not(:r:rest) -> {::expect(::negate(:r))}
 
 %: negate('false`) -> {true}
 %: negate('true`) -> {false}
 
 %: m5_main {
-   %: :name:alnum_s::nwh=::nwh:i:int::nwh;
+   %: :name:alnum_s = :i:int ;
 } -> {
    %: :name -> {:i}
 }
 
 %: virtual_variable = 0;
 
-%: {::expect(::eq(::virtual_variable|0))}
+%: {::expect(::eq(::virtual_variable|0)_324876)}
 
 %: {::use_whitespace_handler(remove all whitespace)} {
    %::test_rule_5(::rest) -> {error!}
@@ -42,14 +38,14 @@
 }
 
 %::test_rule_6(::rest) -> {error!}
-%: test_rule_6(this is a test) -> {this is the result}
+%: test_rule_6('this ` 'is ` 'a ` test) -> {this is the result}
 
-%: {::expect(::eq(::test_rule_5(thisisatest)|thisistheresult))}
-%: {::expect(::eq(::test_rule_5(this is a test)|error!))}
+%: {::expect(::eq(::test_rule_5(thisisatest)|thisistheresult)_2387263)}
+%: {::expect(::eq(::test_rule_5(this is a test)|error!)_234628)}
 
-%: {::expect(::eq(::test_rule_6(this is a test)|this is the result))}
-%: {::expect(::eq(::test_rule_6(this  is  a  test)|this is the result))}
-%: {::expect(::eq(::test_rule_6(thisisatest)|error!))}
+%: {::expect(::eq(::test_rule_6(this is a test)|this is the result)_346287)}
+%: {::expect(::eq(::test_rule_6(this  is  a  test)|this is the result)_9234637)}
+%: {::expect(::eq(::test_rule_6(thisisatest)|error!)_324876238)}
 
 %: meta! {
    type string_list = list of {::c_quote} .
@@ -58,10 +54,10 @@
 %: test_string_list(::rest) -> {false}
 %: test_string_list([::string_list]) -> {true}
 
-%: {::expect(::eq(::test_string_list(["hel lo", "wo rld", "", "\""])|true))}
-%: {::expect(::eq(::test_string_list(["hel lo"])|true))}
-%: {::expect(::eq(::test_string_list([])|true))}
-%: {::expect(::eq(::test_string_list(["a", 34, "wo rld"])|false))}
+%: {::expect(::eq(::test_string_list(["hel lo", "wo rld", "", "\""])|true)_2344876)}
+%: {::expect(::eq(::test_string_list(["hel lo"])|true)_234637)}
+%: {::expect(::eq(::test_string_list([])|true)_23948763)}
+%: {::expect(::eq(::test_string_list(["a", 34, "wo rld"])|false)_2347628)}
 
 %: COMMENT {'{`}
 
@@ -75,7 +71,7 @@
 `  ::expect(true)'
 `  ::expect(::negate(false))'
 `  ::expect(::negate(::eq(hello|bye)))'
-`  ::expect(::eq(same|same))'
+`  ::expect(::eq(same|same)_23486728)'
 `}
 
 %: one -> {1}
@@ -83,7 +79,7 @@
 %: {
    :y:one
    :x:copy(::one'_`:y'_`1)
-   ::expect(::eq(:x|1_1_1))
+   ::expect(::eq(:x|1_1_1)_128376)
 }
 
 %: test_rule {}
@@ -105,18 +101,18 @@
    string test = "bye".
    raw '%: {::expect(::eq(::test|bye)_111)}`.
    append " bye" to string test.
-   raw '%: {::expect(::eq(::test|bye bye))}`.
+   raw '%: {::expect(::eq(::test|bye bye)_234876)}`.
    string other = string test.
    raw '%: {::expect(::eq(::other|::test)_not_equal_7638)}`.
 }
 
-%: meta! {
-   syntax structured_test = param 
+%: {:defs:structured_rule(
+   structured_test = param '`
       match all of
          (({a}->{b} {c})?({d})+ or ({e}->{f} or ({g}))*) 
       or 
-         {::rest} -> {error!}.
-}
+         {'::rest`} -> {error!}
+)}
 
 %: test_syntax {%: hello!} -> {%: result {} -> {true}}
 %: {::activate_rule(test_syntax)}

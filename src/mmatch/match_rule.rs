@@ -48,13 +48,18 @@ impl Rule {
             "m5_verbose",
             "m5_load",
             "m5_import",
+            "m5_print_defs"
         ].contains(&name)
     }
 
     /// try applying rule variants from the bottom up
     pub fn match_last<'a>(&self, input: &'a str, param: &str, rules: &Rules) -> MatchResult<(&'a str, String)> {
         if self.is_macro() {
-            if self.name == "m5_load" {
+            if self.name == "m5_print_defs" {
+                unsafe { remove_defs = false; }
+                Ok((input, "".to_string()))
+            }
+            else if self.name == "m5_load" {
                 let path = param;
                 Ok((input, dump_file(path)
                     .or_else(|err| {

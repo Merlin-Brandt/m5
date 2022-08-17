@@ -1,37 +1,45 @@
 
-%: peek_balanced_curly (not) {::not_balanced_curly}
-%: not_balanced_curly (not) {::balanced_curly}
+%: {::init_m5_0_2}
 
-%: bash_macro {
-	%if str :a:c_quote equals :b:c_quote ::peek_balanced_curly
+%::peek_balanced_curly (not) {::not_balanced_curly}
+%::not_balanced_curly (not) {::balanced_curly}
+
+%::explicit_c_int_expr {argc} -> {$#}
+%: explicit_c_int_expr {( int ) :varname:alnum_s} -> {$varname}
+%: explicit_c_int_expr {::int}
+
+%::explicit_c_str_expr {string(argv[:i:uint])} -> {"$:i"}
+%: explicit_c_str_expr {( string ) :varname:alnums} -> {"$varname"}
+%: explicit_c_str_expr {::c_quote}
+
+%: c_control_structures {
+	if ( :a:explicit_c_str_expr == :b:explicit_c_str_expr ) :body:peek_balanced_curly
 } -> {
-	test :a = :b &&' `
+	test :a = :b && :body
 }
 
-%: bash_macro {
-	%if num :a:until_space equals :b:until_space ::peek_balanced_curly
+%: c_control_structures {
+	if (:a:explicit_c_int_expr == :b:explicit_c_int_expr) :body:peek_balanced_curly
 } -> {
-	test :a -eq :b &&' `
+	test :a -eq :b && :body
 }
 
-%: bash_macro {
-	%expect :a:until_space ::peek_balanced_curly
+%: nop {}
+%::str_expr {::c_quote}
+%: str_expr {:v:alnum_s} -> {"$:v"}
+%::str_expr_list {}
+%: str_expr_list {::str_expr}
+%: str_expr_list {:a:str_expr , :r:str_expr_list::nop} -> { :a :r }
+
+%: c_control_structures {
+	for ( string :var:alnum_s : {:list:str_expr_list} ) :body:balanced_curly
 } -> {
-	:a'=`"$1" && shift &&' `
+	for :var in :list 
+    do
+        %: -> {'::init_use_feature_c_control_structures(eval «`:body'»)`}
+    done
 }
 
-%: bash_macro {
-	%expect :a:c_quote ::peek_balanced_curly
-} -> {
-	test :a = "$1" && shift &&' `
-}
+%: use! c_control_structures
 
-%: bash_macro {
-	%expect_end ::peek_balanced_curly
-} -> {
-	test "$1" = "" &&' `
-}
-
-%: {
-	::use_syntax_feature(bash_macro)
-}
+%: init_use_feature_c_control_structures(eval :result:init_use_feature_c_control_structures) -> {:result}

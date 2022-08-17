@@ -1,31 +1,30 @@
 %: init_m5 {}
 %: init_m5_0_1 {}
 %: init_m5_0_1_1 {}
+%: 1wh {' `}
+%: 1wh {::newline}
+%: 1wh {'	`}
+%: newline {'
+`}
+%: newline {'
+`}
 %: {::m5_load(init/predefined.m5)}
 %: print (print) {}
 %: groups_m5 {}
-%: 1wh {' `}
-%: 1wh {::newline}
-%: 1wh{'	`}
-%: newline {'
-`}
-%: newline {'
-`}
 %: 0wh {}
 %: nwh {}
 %: nwh {::1wh::nwh}
 %: 1nwh {::1wh::nwh}
 %: whitespace {::1wh}
 %: whitespaces {::1nwh}
-%: anychar (any) {}
-%: simple_quote {{''`}}
+%: simple_quote {«'»}
 %: double_quote {"}
 %: az {a} %: (suppress_error) az {b} %: (suppress_error) az {c} %: (suppress_error) az {d} %: (suppress_error) az {e} %: (suppress_error) az {f} %: (suppress_error) az {g} %: (suppress_error) az {h} %: (suppress_error) az {i} %: (suppress_error) az {j} %: (suppress_error) az {k} %: (suppress_error) az {l} %: (suppress_error) az {m} %: (suppress_error) az {n} %: (suppress_error) az {o} %: (suppress_error) az {p} %: (suppress_error) az {q} %: (suppress_error) az {r} %: (suppress_error) az {s} %: (suppress_error) az {t} %: (suppress_error) az {u} %: (suppress_error) az {v} %: (suppress_error) az {w} %: (suppress_error) az {x} %: (suppress_error) az {y} %: (suppress_error) az {z}
 %: AZ {A} %: (suppress_error) AZ {B} %: (suppress_error) AZ {C} %: (suppress_error) AZ {D} %: (suppress_error) AZ {E} %: (suppress_error) AZ {F} %: (suppress_error) AZ {G} %: (suppress_error) AZ {H} %: (suppress_error) AZ {I} %: (suppress_error) AZ {J} %: (suppress_error) AZ {K} %: (suppress_error) AZ {L} %: (suppress_error) AZ {M} %: (suppress_error) AZ {N} %: (suppress_error) AZ {O} %: (suppress_error) AZ {P} %: (suppress_error) AZ {Q} %: (suppress_error) AZ {R} %: (suppress_error) AZ {S} %: (suppress_error) AZ {T} %: (suppress_error) AZ {U} %: (suppress_error) AZ {V} %: (suppress_error) AZ {W} %: (suppress_error) AZ {X} %: (suppress_error) AZ {Y} %: (suppress_error) AZ {Z}
 %: aZ (suppress_error) {::az}
 %: aZ {::AZ}
 %: 09 {0} %: (suppress_error) 09 {1} %: (suppress_error) 09 {2} %: (suppress_error) 09 {3} %: (suppress_error) 09 {4} %: (suppress_error) 09 {5} %: (suppress_error) 09 {6} %: (suppress_error) 09 {7} %: (suppress_error) 09 {8} %: (suppress_error) 09 {9}
-%: specialchar {'!`}%: specialchar {'"`}%: specialchar {'#`}%: specialchar {'$`}%: specialchar {'%`}%: specialchar {'&`}%: specialchar {{''`}}%: specialchar {'(`}%: specialchar {')`}%: specialchar {'*`}%: specialchar {'+`}%: specialchar {',`}%: specialchar {'-`}%: specialchar {'.`}%: specialchar {'/`}%: specialchar {':`}%: specialchar {';`}%: specialchar {'<`}%: specialchar {'=`}%: specialchar {'>`}%: specialchar {'?`}%: specialchar {'@`}%: specialchar {'[`}%: specialchar {'\`}%: specialchar {']`}%: specialchar {'^`}%: specialchar {'_`}%: specialchar {{'``}}%: specialchar {'`}%: specialchar {'|`}%: specialchar {'~`}
+%: specialchar {'!`}%: specialchar {'"`}%: specialchar {'#`}%: specialchar {'$`}%: specialchar {'%`}%: specialchar {'&`}%: specialchar {«'»}%: specialchar {'(`}%: specialchar {')`}%: specialchar {'*`}%: specialchar {'+`}%: specialchar {',`}%: specialchar {'-`}%: specialchar {'.`}%: specialchar {'/`}%: specialchar {':`}%: specialchar {';`}%: specialchar {'<`}%: specialchar {'=`}%: specialchar {'>`}%: specialchar {'?`}%: specialchar {'@`}%: specialchar {'[`}%: specialchar {'\`}%: specialchar {']`}%: specialchar {'^`}%: specialchar {'_`}%: specialchar {{'``}}%: specialchar {'`}%: specialchar {'|`}%: specialchar {'~`}
 %: alnum {::aZ}
 %: alnum {::09}
 %: alnum_ {_}
@@ -33,11 +32,27 @@
 %: opaquechar {::not_whitespace::anychar}
 %: not_whitespace (not) {::whitespace}
 
+%: m5_quote (predefined) {::throw_predefined_rule}
+%: anychar (any) {}
+%: (not) nochar {::anychar}
+%: (not) not_quote_end1 {`}
+%: (not) not_quote_end2 {»}
+%: not_quote_end {::not_quote_end1::not_quote_end2}
+%: (not) not_quote_begin1 {«'»}
+%: (not) not_quote_begin2 {'«`}
+%: (not) peek_quote_begin {::not_quote_begin1}
+%: (not) peek_quote_begin {::not_quote_begin2}
+%: try_quote {::not_quote_end::anychar}
+%: try_quote {::peek_quote_begin::m5_quote}
+%: try_quote_s {::nochar}
+%: try_quote_s {::try_quote::try_quote_s}
+%: notailopt {}
+%: {::try_quote_s}
+
 %: {::m5_load(lean_comment.m5)}
 
-%: {::remove_comments} {
-
-%: char {::anychar}
+%: {::remove_comments} 
+{%: char {::anychar}
 %: m_char {::char}
 
 %: uint {::09}
@@ -59,24 +74,12 @@
 %: alnum_s {::alnum_::alnum_s}
 
 %: no_tail_opt {}
-
-%: c_quote {"::c_quote_inner"}
-%: c_quote_inner {}
-%: c_quote_inner {::not_quote_end::anychar::c_quote_inner}
-%: c_quote_inner {\:c:anychar:r:c_quote_inner}
-
-%: c_quote_value {":inner:c_quote_inner_value"} -> {:inner}
-%: c_quote_inner_value {}
-%: c_quote_inner_value {::not_quote_end::anychar::c_quote_inner}
-%: c_quote_inner_value {\:c:anychar:r:c_quote_inner::no_tail_opt} -> {:c'`:r}
-
-%: not_quote_end (not) {"}
-
 %: c_ident {::alnum_s}
 
-/ note to m5: this pattern can be optimized easily and effectively. /
 %: rest {}
 %: rest {::anychar::rest}
+%: quit -> {%:'{::rest}`->{}}
+%: quit('print rest`) -> {%:'{::rest}`}
 
 %: raise_quote(:r:rest) -> {«'»:r«`»}
 %: raise_quote2(:r:rest) -> {::raise_quote(::raise_quote(:r))}
@@ -194,14 +197,4 @@
    %: :rule -> :header
 }
 
-%: quit -> {
-   %: '{::rest}` -> {}
-}
-
-%: quit('print rest`) -> {
-   %: '{::rest}`
-}
-
-%: {::define_late_whitespace_handler_methods}
-
-}/remove_comments/
+%: {::define_late_whitespace_handler_methods}}/remove_comments/

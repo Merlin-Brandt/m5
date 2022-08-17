@@ -96,6 +96,8 @@ pub fn match_inner_rule_definition<'a>(mut input: &'a Input, rules: &Rules) -> M
                     }
                     Err(_) => (input, None)
                 };
+
+                let input = match_whitespaces(input)?;
             
                 RuleVariant::new(input_header)
                     .parameter_header_option(parameter_header_option)
