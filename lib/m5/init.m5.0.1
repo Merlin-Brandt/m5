@@ -1,22 +1,25 @@
 %: init_m5 {}
 %: init_m5_0_1 {}
 %: init_m5_0_1_1 {}
-%: 1wh {' `}
-%: 1wh {::newline}
-%: 1wh {'	`}
-%: newline {'
+%: (suppress_error) 1wh {' `}
+%: (suppress_error) 1wh {::newline}
+%: (suppress_error) 1wh {'	`}
+%: (suppress_error) newline {'
 `}
-%: newline {'
+%: (suppress_error) newline {'
+`}
+%: get_newline -> {'
 `}
 %: {::m5_load(init/predefined.m5)}
 %: print (print) {}
 %: groups_m5 {}
-%: 0wh {}
-%: nwh {}
-%: nwh {::1wh::nwh}
-%: 1nwh {::1wh::nwh}
-%: whitespace {::1wh}
-%: whitespaces {::1nwh}
+%: (suppress_error) 0wh {}
+%: nwhTO {}
+%: nwhTO {::1wh::nwhTO}
+%: (suppress_error) nwh {::nwhTO}
+%: (suppress_error) 1nwh {::1wh::nwh}
+%: (suppress_error) whitespace {::1wh}
+%: (suppress_error) whitespaces {::1nwh}
 %: simple_quote {«'»}
 %: double_quote {"}
 %: az {a} %: (suppress_error) az {b} %: (suppress_error) az {c} %: (suppress_error) az {d} %: (suppress_error) az {e} %: (suppress_error) az {f} %: (suppress_error) az {g} %: (suppress_error) az {h} %: (suppress_error) az {i} %: (suppress_error) az {j} %: (suppress_error) az {k} %: (suppress_error) az {l} %: (suppress_error) az {m} %: (suppress_error) az {n} %: (suppress_error) az {o} %: (suppress_error) az {p} %: (suppress_error) az {q} %: (suppress_error) az {r} %: (suppress_error) az {s} %: (suppress_error) az {t} %: (suppress_error) az {u} %: (suppress_error) az {v} %: (suppress_error) az {w} %: (suppress_error) az {x} %: (suppress_error) az {y} %: (suppress_error) az {z}
@@ -25,10 +28,10 @@
 %: aZ {::AZ}
 %: 09 {0} %: (suppress_error) 09 {1} %: (suppress_error) 09 {2} %: (suppress_error) 09 {3} %: (suppress_error) 09 {4} %: (suppress_error) 09 {5} %: (suppress_error) 09 {6} %: (suppress_error) 09 {7} %: (suppress_error) 09 {8} %: (suppress_error) 09 {9}
 %: specialchar {'!`}%: specialchar {'"`}%: specialchar {'#`}%: specialchar {'$`}%: specialchar {'%`}%: specialchar {'&`}%: specialchar {«'»}%: specialchar {'(`}%: specialchar {')`}%: specialchar {'*`}%: specialchar {'+`}%: specialchar {',`}%: specialchar {'-`}%: specialchar {'.`}%: specialchar {'/`}%: specialchar {':`}%: specialchar {';`}%: specialchar {'<`}%: specialchar {'=`}%: specialchar {'>`}%: specialchar {'?`}%: specialchar {'@`}%: specialchar {'[`}%: specialchar {'\`}%: specialchar {']`}%: specialchar {'^`}%: specialchar {'_`}%: specialchar {{'``}}%: specialchar {'`}%: specialchar {'|`}%: specialchar {'~`}
-%: alnum {::aZ}
-%: alnum {::09}
-%: alnum_ {_}
-%: alnum_ {::alnum}
+%: (suppress_error) alnum {::aZ}
+%: (suppress_error) alnum {::09}
+%: (suppress_error) alnum_ {_}
+%: (suppress_error) alnum_ {::alnum}
 %: opaquechar {::not_whitespace::anychar}
 %: not_whitespace (not) {::whitespace}
 
@@ -51,8 +54,8 @@
 
 %: {::m5_load(lean_comment.m5)}
 
-%: {::remove_comments} 
-{%: char {::anychar}
+%: {::remove_comments} {
+%: char {::anychar}
 %: m_char {::char}
 
 %: uint {::09}
@@ -70,10 +73,24 @@
 
 %: number {::float}
 
-%: alnum_s {::alnum_}
-%: alnum_s {::alnum_::alnum_s}
+%: alnum_sTO {::alnum_}
+%: alnum_sTO {::alnum_::alnum_sTO}
+%: (suppress_error) alnum_s {::alnum_sTO}
 
 %: no_tail_opt {}
+
+%: c_quote {"::c_quote_inner"}
+%: c_quote_inner {}
+%: c_quote_inner {::not_c_quote_end::anychar::c_quote_inner}
+%: c_quote_inner {\:c:anychar:r:c_quote_inner}
+
+%: c_quote_value {":inner:c_quote_inner_value"} -> {:inner}
+%: c_quote_inner_value {}
+%: c_quote_inner_value {::not_c_quote_end::anychar::c_quote_inner}
+%: c_quote_inner_value {\:c:anychar:r:c_quote_inner::no_tail_opt} -> {:c'`:r}
+
+%: not_c_quote_end (not) {"}
+
 %: c_ident {::alnum_s}
 
 %: rest {}
@@ -93,30 +110,34 @@
 %: until_space {}
 %: until_space {::not_whitespace::anychar::until_space}
 
-/this should be moved to metatime/
-%: bake_rule(:name:alnum_s = maybe :r:rest) -> {
+%: m5_main {
+   %: :name:alnum_s = maybe :r:m5_header({})
+} -> {
    %: :name {}
    %: :name :r
 }
 
-%: bake_rule(until_:name:alnum_s = until :r:rest) -> {
-   %: until_:name (undefine) {}
-   %: until_:name'_not` (undefine) {}
-   %: until_:name {}
-   %: until_:name {«::until_»:name'_not`'::anychar::until_`:name}  
-   %: until_:name'_not` (not) {:r}
+%: m5_main {
+   %: :name:alnum_s = until :h:m5_header({})
+} -> {
+   %: :name (undefine) {}
+   %: :name'_not` (undefine) {}
+   %: :name {}
+   %: :name {«::»:name'_not`'::anychar::`:name}  
+   %: :name'_not` (not) :h
 }
 
-%: bake_rule(up_to_:name:alnum_s = up to :r:rest) -> {
-   %: up_to_:name (undefine) {}
-   %: up_to_:name'_not` (undefine) {}
-   %: up_to_:name {:r}
-   %: up_to_:name {«::up_to_»:name'_not`'::anychar::up_to_`:name}  
-   %: up_to_:name'_not` (not) {:r}
+%: m5_main {
+   %: :name:alnum_s = up to :h:m5_header({})
+} -> {
+   %: :name (undefine) {}
+   %: :name'_not` (undefine) {}
+   %: :name {:r}
+   %: :name {«::»:name'_not`'::anychar::`:name}  
+   %: :name'_not` (not) :h
 }
 
-%: {::bake_rule(until_newline = until '::newline`)}
-%: line_rest {::until_newline}
+%: line_rest = until {::newline}
 
 / a wcomma is a string of the form \s*\,\s+ 
   and is not a usual comma.

@@ -47,6 +47,10 @@ impl MatchError {
         }
     }
 
+    pub fn location(input: &str) -> MatchError {
+        MatchError::new(format!("at input '{}`", error_region(input)))
+    }
+
     pub fn expected(expected: &str, input: &str) -> MatchError {
         MatchError::new(format!("Expected '{}`, got '{}`", expected, error_region(input)))
     }
@@ -95,13 +99,13 @@ impl MatchError {
                     let subs = subErrors.iter().map(|err| {
                         err.display_without_backtrace(indent.to_string() + "  ", true)
                     }).collect::<Vec<_>>().join("");
-                    format!("{}{}\n{}candidates: {}\n{}\n", indent, msg, indent, subErrors.len(), subs)
+                    format!("{}{}{}\n{}", indent, if indent != "" {"|>> "} else {""}, msg, subs)
                 } else {
-                    format!("{}{}\n", indent, msg)
+                    format!("{}{}{}\n", indent, if indent != "" {"|>> "} else {""}, msg)
                 }
             }
             ErrorType::UnknownRule {msg} => {
-                format!("{}{}\n", indent, msg)
+                format!("{}{}{}\n", indent, if indent != "" {"|>> "} else {""}, msg)
             }
         }
     }

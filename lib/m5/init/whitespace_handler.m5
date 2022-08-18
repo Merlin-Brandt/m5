@@ -8,9 +8,6 @@
 
 %: comment(::rest) {}
 
-%: get_newline -> {'
-`}
-
 /%: {::define_whitespace_handler('replace with ::1nwh`)}/
     %: (undefine) m5_whitespace_handler_header {}                                   
     %: m5_whitespace_handler_header('begin`) {::rest} -> {}                         

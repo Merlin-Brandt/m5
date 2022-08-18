@@ -25,7 +25,9 @@ impl Rule {
                     }
                 },
             }
-
+        }
+        if candidate_errors.is_empty() {
+            candidate_errors.push(MatchError::location(input));
         }
         return MatchError::compose(format!("No variant of '{}' matched.", self.name), candidate_errors).tap(Err);
     }
@@ -56,7 +58,7 @@ impl Rule {
     pub fn match_last<'a>(&self, input: &'a str, param: &str, rules: &Rules) -> MatchResult<(&'a str, String)> {
         if self.is_macro() {
             if self.name == "m5_print_defs" {
-                unsafe { remove_defs = false; }
+                unsafe { remove_defs = param == "false"; }
                 Ok((input, "".to_string()))
             }
             else if self.name == "m5_load" {

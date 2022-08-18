@@ -288,19 +288,25 @@
 }
 %: continue_eval_at_once {:r:rest} -> {::metatime_eval(:r)}
 
-%: metatime_syntax {
+%: m5_main {
    %: compile meta::1nwh:r:rest
 } -> {
    %: «{:s:metatime_eval('»:r«`)}»
 }
 
-%: metatime_syntax {
+%: m5_main {
    %: meta! {:i:balanced_curly_inner}
 } -> {
    %: «{::metatime_eval('»:i«`)}»
 }
 
-%: {::activate_rule(metatime_syntax)}
+%: until_dot = until {.}
+
+%: m5_main {
+   %: [meta] :cmd:until_dot.
+} -> {
+   %: «{::metatime_eval('»:cmd.«`)}»
+}
 
 %: meta! {
    create namespace metatime.

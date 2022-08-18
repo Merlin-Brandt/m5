@@ -90,8 +90,6 @@ pub fn process(input: &str, rules: &mut Rules, mut appleft: MaybeInf<u32>, _remo
     let mut input = input.to_string();
 
     while let Some((skipped_text, statement_begin)) = find_statement(&input) {
-        // todo: use m5 to sweeten this up to 
-        // break if appleft == MaybeInf::Finite(0);
         if appleft == MaybeInf::Finite(0) {
             break;
         }

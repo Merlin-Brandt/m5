@@ -1,9 +1,12 @@
 
 %: {::init_m5_0_2}
+%: {::metatime_m5}
+%: {::lean_comments_m5} %: {::remove_comments} {
 
 %::peek_balanced_curly (not) {::not_balanced_curly}
 %::not_balanced_curly (not) {::balanced_curly}
 
+%: __TODO {argc and argv are not treated as main() params, but as global keywords}
 %::explicit_c_int_expr {argc} -> {$#}
 %: explicit_c_int_expr {( int ) :varname:alnum_s} -> {$varname}
 %: explicit_c_int_expr {::int}
@@ -27,19 +30,20 @@
 %: nop {}
 %::str_expr {::c_quote}
 %: str_expr {:v:alnum_s} -> {"$:v"}
-%::str_expr_list {}
-%: str_expr_list {::str_expr}
-%: str_expr_list {:a:str_expr , :r:str_expr_list::nop} -> { :a :r }
+%: [meta] type str_expr_list = list of {::str_expr}.
 
 %: c_control_structures {
-	for ( string :var:alnum_s : {:list:str_expr_list} ) :body:balanced_curly
+	for ( string :var:alnum_s : {:list:str_expr_list} ) {:body:balanced_curly_inner}
 } -> {
-	for :var in :list 
-    do
-        %: -> {'::init_use_feature_c_control_structures(eval «`:body'»)`}
-    done
+	for :var in :list '
+`   do '
+`       %: -> {'::init_use_feature_c_control_structures(eval «`:body'»)`} '
+`   done'
+`
 }
 
 %: use! c_control_structures
 
 %: init_use_feature_c_control_structures(eval :result:init_use_feature_c_control_structures) -> {:result}
+
+}
