@@ -75,8 +75,8 @@
    / when used, you should include the list-invocation between parens /
    / e.g. %: some_function([:l:string_list]) /
 
+   %::metatime_maybe_separator {} -> {{,}}
    %: metatime_maybe_separator {separated' ` by :h:m5_header({})} -> {:h}
-   %: metatime_maybe_separator {} -> {{,}}
 
    %: metatime_eval(type' ` :tname:alnum_s = list' ` of :elm:m5_header({}) :sep:metatime_maybe_separator .:rest:continue_eval) -> { '
       %:: `:tname'_elm `:elm'
@@ -111,10 +111,10 @@
    %: metatime_verbose_flag {v' `} -> {verbose' `}
    %: metatime_verbose_flag {verbose' `}
    %: m5_main {
-      %: :vf:metatime_verbose_flag :rulename:alnum_s = :mp:maybe_param :combination:rule_combination
+      %: :vf:metatime_verbose_flag :def:def_directive_in :rulename:alnum_s = :mp:maybe_param :combination:rule_combination
    } -> {
       / here, :combination will be reparsed just to be passed to ::structured_rule @9263738/
-      «%: {::structured_rule(»:vf'`compile :rulename« = '»:mp :combination«`)}»
+      «%: {::structured_rule(»:vf'`:def :rulename« = '»:mp :combination«`)}»
    }
 
    %: metatime_eval(raw' ` :code:m5_quote_value .:rest:continue_eval) -> {

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# ffmpegh is a ffmpeg helper
+
+test "$1" = "" && {
+	echo "Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>"
+	exit		
+}
+
+for cmd in "attach" "attach_thumbnail" 
+do 
+	test "$1" = cmd && {
+		for i in $(seq 2 1 3)
+		do 
+	        test "${!i}" = "" && {
+				echo "Usage: ffmpegh attach <thumbnail> <video>"
+				exit		
+			}
+		`done
+
+		thumbnail = "$2"
+		video_in = "$3"
+		video_out = "$(mktemp XXXXX.mp4)"
+		ffmpeg -i "$video_in" -i "$thumbnail" -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic "$video_out"
+		rm video_in
+		mv video_out video_in
+	}
+done
+
+
+
+
+

@@ -1,35 +1,41 @@
 #!/bin/bash
+
+# ffmpegh is a ffmpeg helper, written in "bashy c"
+
 %: {::m5_load(init.m5.0.2)}
 %: {::m5_load(bash.m5)}
 
-# ffmpegh is a ffmpeg helper
+#include <string.h>
 
-if (argv[1] == "")
+int main(int argc, char **argv)
 {
-	echo "Usage: ffmpegh attach <thumbnail> <video>"
-	exit		
-}
-
-for (string s : {"hello", bye})
-{
-	if (string(argv[1]) == "attach")
+    if (!strcmp(argv[1], ""))
 	{
-		if (string(argv[2]) == "")
+		`echo "Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>"`;
+		`exit`;		
+	}
+
+	for (char *cmd : {"attach", "attach_thumbnail"})
+	{
+		if (!strcmp(argv[1], cmd))
 		{
-			echo "Usage: ffmpegh attach <thumbnail> <video>"
-			exit		
+			for (int i = 2; i <= 3; ++i)
+			{
+				if (!strcmp(argv[i], ""))
+				{
+					`echo "Usage: ffmpegh attach <thumbnail> <video>"`;
+					`exit`;		
+				}
+			}
+			char *thumbnail = argv[2];
+			char *video_in = argv[3];
+			char *video_out = `mktemp XXXXX.mp4`;
+			`ffmpeg -i "$video_in" -i "$thumbnail" -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic "$video_out"`;
+			`rm video_in`;
+			`mv video_out video_in`;
 		}
-		if (string(argv[3]) == "")
-		{
-			echo "Usage: ffmpegh attach <thumbnail> <video>"
-			exit		
-		}
-		thumbnail="$2"
-		video_in="$3"
-		video_out="$(mktemp XXXXX.mp4)"
-		ffmpeg -i "$video_in" -i "$thumbnail" -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic "$video_out"
-		rm video_in
-		mv video_out video_in
 	}
 }
+
+
 

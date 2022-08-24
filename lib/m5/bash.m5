@@ -1,49 +1,94 @@
 
 %: {::init_m5_0_2}
 %: {::metatime_m5}
-%: {::lean_comments_m5} %: {::remove_comments} {
 
 %::peek_balanced_curly (not) {::not_balanced_curly}
 %::not_balanced_curly (not) {::balanced_curly}
 
-%: __TODO {argc and argv are not treated as main() params, but as global keywords}
 %::explicit_c_int_expr {argc} -> {$#}
 %: explicit_c_int_expr {( int ) :varname:alnum_s} -> {$varname}
 %: explicit_c_int_expr {::int}
 
-%::explicit_c_str_expr {string(argv[:i:uint])} -> {"$:i"}
-%: explicit_c_str_expr {( string ) :varname:alnums} -> {"$varname"}
+%::explicit_c_str_expr {argv[:var:alnum_s]} -> {"${!:var}"}
+%: explicit_c_str_expr {argv[:i:uint]} -> {"$:i"}
+%: explicit_c_str_expr {«`»:cmd:inline_cmd«`»} -> {"$(:cmd)"}
+%: explicit_c_str_expr {( char * ) :varname:alnums} -> {"$varname"}
 %: explicit_c_str_expr {::c_quote}
 
-%: c_control_structures {
-	if ( :a:explicit_c_str_expr == :b:explicit_c_str_expr ) :body:peek_balanced_curly
+%::c_str_expr {:varname:alnum_s} -> {"$varname"}
+%: c_str_expr {::explicit_c_str_expr} 
+
+%: inline_cmd = until {«`»}
+
+%::c_stmts {}
+%: c_stmts {'` ::c_stmt ::c_stmts '`}
+
+%: c_stmt {
+	if ( ! strcmp ( :a:c_str_expr , :b:c_str_expr ) ) {:body:c_stmts}
 } -> {
-	test :a = :b && :body
+	test :a = :b && {:body}
 }
 
-%: c_control_structures {
-	if (:a:explicit_c_int_expr == :b:explicit_c_int_expr) :body:peek_balanced_curly
+%: c_stmt {
+	if (:a:explicit_c_int_expr == :b:explicit_c_int_expr) {:body:c_stmts}
 } -> {
-	test :a -eq :b && :body
+	test :a -eq :b && {:body}
+}
+
+%: c_stmt {
+	char * :var:alnum_s = :val:c_str_expr;
+} -> {
+	:var = :val
+}
+
+%: c_stmt {
+	int :var:alnum_s = :val:explicit_c_int_expr;
+} -> {
+	:var = :val
+} 
+
+%: c_stmt {
+	«`»:cmd:inline_cmd«`»;
+} -> {
+	:cmd 
 }
 
 %: nop {}
 %::str_expr {::c_quote}
 %: str_expr {:v:alnum_s} -> {"$:v"}
-%: [meta] type str_expr_list = list of {::str_expr}.
+%::delete(:r:rest) {:r} -> {}
+%: [meta] type str_expr_list = list of {::str_expr} separated by {::delete(,)} .
 
-%: c_control_structures {
-	for ( string :var:alnum_s : {:list:str_expr_list} ) {:body:balanced_curly_inner}
+%: c_stmt {
+	for ( char * :var:alnum_s : {:list:str_expr_list} ) {:body:c_stmts}
 } -> {
 	for :var in :list '
 `   do '
-`       %: -> {'::init_use_feature_c_control_structures(eval «`:body'»)`} '
+`       :body '
 `   done'
-`
+`}
+
+%::step_op(:var:alnum_s) {++ :var} -> {1}
+%: step_op(:var:alnum_s) {:var ++} -> {1}
+%: step_op(:var:alnum_s) {-- :var} -> {-1}
+%: step_op(:var:alnum_s) {:var --} -> {-1}
+%: step_op(:var:alnum_s) {:var += :s:int} -> {:s}
+%: step_op(:var:alnum_s) {:var -= :s:int} -> {::m5cl(-:s)}
+%: cmp_op {>=}
+%: cmp_op {<=}
+%: c_stmt {
+	for ( int :var:alnum_s = :a:explicit_c_int_expr ; :var ::cmp_op :z:explicit_c_int_expr ; :step:step_op(:var) ) {:body:c_stmts}
+} -> {
+	for :var in $(seq :a :step :z)'
+`   do '
+`       :body '
+`   done'
+`}
+
+%: {
+    '` #include <string.h> '`
+    '` int main ( int argc , char * * argv ) '{` :contents:c_stmts '}`
+} -> {
+	:contents
 }
 
-%: use! c_control_structures
-
-%: init_use_feature_c_control_structures(eval :result:init_use_feature_c_control_structures) -> {:result}
-
-}

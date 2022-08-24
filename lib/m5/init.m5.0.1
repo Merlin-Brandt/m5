@@ -38,19 +38,6 @@
 %: m5_quote (predefined) {::throw_predefined_rule}
 %: anychar (any) {}
 %: (not) nochar {::anychar}
-%: (not) not_quote_end1 {`}
-%: (not) not_quote_end2 {»}
-%: not_quote_end {::not_quote_end1::not_quote_end2}
-%: (not) not_quote_begin1 {«'»}
-%: (not) not_quote_begin2 {'«`}
-%: (not) peek_quote_begin {::not_quote_begin1}
-%: (not) peek_quote_begin {::not_quote_begin2}
-%: try_quote {::not_quote_end::anychar}
-%: try_quote {::peek_quote_begin::m5_quote}
-%: try_quote_s {::nochar}
-%: try_quote_s {::try_quote::try_quote_s}
-%: notailopt {}
-%: {::try_quote_s}
 
 %: {::m5_load(lean_comment.m5)}
 
@@ -103,9 +90,6 @@
 %: raise_braced_quote(:r:rest) -> {'{`«'»:r«`»'}`}
 
 %: {::m5_load(init//whitespace_handler.m5)}
-
-/warning: might not work/
-%: not (not) (:r:rest) {:r}
 
 %: until_space {}
 %: until_space {::not_whitespace::anychar::until_space}
@@ -170,10 +154,6 @@
 
 %: m5_lib {//usr//local//lib//m5//}
 
-/ include metatime.m5 here /
-
-/ define new syntax feature: work at block /
-
 %: activate_rule(:feature:alnum_s) {} -> {
    ::_activate_rule_with_flag(:feature, (syntax))
 }
@@ -217,5 +197,14 @@
    %: (undefine) :rule {}
    %: :rule -> :header
 }
+
+%: m5_main {
+   %: :rule:alnum_s = peek :inner:m5_header({})
+} -> {
+   %: (not) :rule'_not` :inner
+   %: (not) :rule {'::`:rule'_not`}
+}
+
+%: peek_alnum_s = peek {::alnum_s}
 
 %: {::define_late_whitespace_handler_methods}}/remove_comments/
