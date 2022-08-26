@@ -1,6 +1,7 @@
 
 %: {::init_m5_0_2}
 %: {::metatime_m5}
+%: {::lean_comments_m5} %: {::remove_comments} {
 
 %::peek_balanced_curly (not) {::not_balanced_curly}
 %::not_balanced_curly (not) {::balanced_curly}
@@ -9,14 +10,24 @@
 %: explicit_c_int_expr {( int ) :varname:alnum_s} -> {$varname}
 %: explicit_c_int_expr {::int}
 
-%::explicit_c_str_expr {argv[:var:alnum_s]} -> {"${!:var}"}
-%: explicit_c_str_expr {argv[:i:uint]} -> {"$:i"}
-%: explicit_c_str_expr {«`»:cmd:inline_cmd«`»} -> {"$(:cmd)"}
-%: explicit_c_str_expr {( char * ) :varname:alnums} -> {"$varname"}
-%: explicit_c_str_expr {::c_quote}
+%::explicit_c_str_expr {:r:explicit_c_str_expr_inner} -> {":r"}
+%::c_str_expr {:r:c_str_expr_inner} -> {":r"}
+%::c_str_destptr {:r:c_str_destptr_inner} -> {":r"}
+/{/
+    /strdupcat(dest, src) ≡ strcat(strdup(dest), src)/
+	%::explicit_c_str_expr_inner {strdupcat(:dest:c_str_expr_inner, :src:c_str_expr_inner)} -> {:dest'`:src}
 
-%::c_str_expr {:varname:alnum_s} -> {"$varname"}
-%: c_str_expr {::explicit_c_str_expr} 
+	%: explicit_c_str_expr_inner {argv[:var:alnum_s]} -> {${!:var}}
+	%: explicit_c_str_expr_inner {argv[:i:uint]} -> {$:i}
+	%: explicit_c_str_expr_inner {«`»:cmd:inline_cmd«`»} -> {$(:cmd)}
+	%: explicit_c_str_expr_inner {( char * ) :varname:alnums} -> {$:varname}
+	%: explicit_c_str_expr_inner {":r:c_quote_inner"} -> {:r}
+
+	%::c_str_destptr_inner {:varname:alnum_s}
+
+	%::c_str_expr_inner {:varname:c_str_destptr_inner} -> {$:varname}
+	%: c_str_expr_inner {::explicit_c_str_expr_inner} 
+/}/
 
 %: inline_cmd = until {«`»}
 
@@ -38,13 +49,13 @@
 %: c_stmt {
 	char * :var:alnum_s = :val:c_str_expr;
 } -> {
-	:var = :val
+	:var=:val
 }
 
 %: c_stmt {
 	int :var:alnum_s = :val:explicit_c_int_expr;
 } -> {
-	:var = :val
+	:var=:val
 } 
 
 %: c_stmt {
@@ -92,3 +103,4 @@
 	:contents
 }
 
+}/remove_comments/

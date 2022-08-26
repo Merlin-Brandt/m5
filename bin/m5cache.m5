@@ -1,0 +1,17 @@
+#!/bin/bash
+
+%: {::m5_load(init.m5.0.2)}
+%: {::m5_load(bash.m5)}
+
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+    char *m5_src_file = argv[1];
+    char *compiled_file = strdupcat(m5_src_file, ".out");
+   `if [ "$compiled_file" -ot "$m5_src_file" ]`;
+   `then`;
+	   `cat "$m5_src_file" | m5 > "$compiled_file"`;    
+   `fi`;
+    `cat "$compiled_file"`;
+}

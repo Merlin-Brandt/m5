@@ -30,7 +30,7 @@ global_link:
 	test $(base)
 	ln -sf $(prj)/bin/$(target) $(base)/bin/$(target)
 	ln -sf $(prj)/bin/$(target) $(base)/bin/m5
-	ln -sf $(prj)/bin/m5bash $(base)/bin/m5bash
+	ln -sf $(prj)/bin/m5cache $(base)/bin/m5cache
 
 .PHONY: global_unlink
 global_unlink:
