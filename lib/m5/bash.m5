@@ -15,7 +15,11 @@
 %::c_str_destptr {:r:c_str_destptr_inner} -> {":r"}
 /{/
     /strdupcat(dest, src) ≡ strcat(strdup(dest), src)/
-	%::explicit_c_str_expr_inner {strdupcat(:dest:c_str_expr_inner, :src:c_str_expr_inner)} -> {:dest'`:src}
+	%::explicit_c_str_expr_inner {
+		strdupcat(:dest:c_str_expr_inner, :src:c_str_expr_inner)
+	} -> {
+		:dest'`:src
+	}
 
 	%: explicit_c_str_expr_inner {argv[:var:alnum_s]} -> {${!:var}}
 	%: explicit_c_str_expr_inner {argv[:i:uint]} -> {$:i}
@@ -29,10 +33,75 @@
 	%: c_str_expr_inner {::explicit_c_str_expr_inner} 
 /}/
 
+%::fopen_expr {fopen(:filename:c_str_expr, ::c_str_expr)} -> {:filename}
+
+%::c_file_expr {::fopen_expr}
+%: c_file_expr {:varname:alnum_s}
+%: c_file_expr {::explicit_c_file_expr}
+
+%::c_expr {::explicit_c_int_expr}
+%: c_expr {::c_str_expr}
+%: c_expr {::c_file_expr}
+
 %: inline_cmd = until {«`»}
 
 %::c_stmts {}
 %: c_stmts {'` ::c_stmt ::c_stmts '`}
+
+%::delete(:r:rest) {:r} -> {}
+%: [meta] type varargs = list of {::c_expr} separated by {::delete(,)}
+
+%: c_stmt {
+	fprintf ( :f:c_file_expr , :fmt:c_str_expr , :a:varargs ) ;
+} -> {
+	printf :fmt :a > :f
+}
+
+%: c_stmt {
+	printf ( :fmt:c_str_expr , :a:varargs ) ;
+} -> {
+	printf :fmt :a > :f
+}
+
+%: c_stmt {
+    FILE * :file:alnum_s = :val:c_file_expr ;
+} -> {
+	:file=:val
+}
+
+%: c_stmt {
+    fclose ( :file:alnum_s ) ;
+} -> {
+	:file=""
+}
+
+%: c_stmt {
+	FILE * :file:alnum_s = :val:fopen_expr {
+		:rest:c_stmts
+	}
+} -> {
+	:file=val
+	:rest
+	:file=
+} /-> (++c syntax)/ /{
+	FILE *:file = :val;
+	{
+		:rest
+	}
+	fclose(:file);
+}/
+
+%: c_stmt {
+	char * :var:alnum_s = malloc ( ) ;
+} -> {
+	:var=$(mktemp /tmp/XXXXXXXX.shvar)
+}
+
+%: c_stmt {
+	free ( :var:alnum_s ) ;
+} -> {
+	rm "$var"
+}
 
 %: c_stmt {
 	if ( ! strcmp ( :a:c_str_expr , :b:c_str_expr ) ) {:body:c_stmts}
@@ -67,7 +136,6 @@
 %: nop {}
 %::str_expr {::c_quote}
 %: str_expr {:v:alnum_s} -> {"$:v"}
-%::delete(:r:rest) {:r} -> {}
 %: [meta] type str_expr_list = list of {::str_expr} separated by {::delete(,)} .
 
 %: c_stmt {
