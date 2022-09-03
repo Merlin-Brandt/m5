@@ -6,6 +6,9 @@
 %::peek_balanced_curly (not) {::not_balanced_curly}
 %::not_balanced_curly (not) {::balanced_curly}
 
+/bash functions basically take string arrays as parameters. so make a simple syntax to translate such a cpp function to bash :)/
+
+
 %::explicit_c_int_expr {argc} -> {$#}
 %: explicit_c_int_expr {( int ) :varname:alnum_s} -> {$varname}
 %: explicit_c_int_expr {::int}
@@ -45,39 +48,41 @@
 
 %: inline_cmd = until {«`»}
 
-%::c_stmts {}
-%: c_stmts {'` ::c_stmt ::c_stmts '`}
+%::c_stmts(:locals:alnum_s) {}
+%: c_stmts(:locals:alnum_s) {'` ::c_stmt(:locals) ::c_stmts(:locals) '`}
 
 %::delete(:r:rest) {:r} -> {}
-%: [meta] type varargs = list of {::c_expr} separated by {::delete(,)}
+%: [meta] type varargs = list of {::c_expr} separated by {::delete(,)}.
+%: maybe_varargs {}
+%: maybe_varargs {::delete(,) ::varargs}
 
-%: c_stmt {
-	fprintf ( :f:c_file_expr , :fmt:c_str_expr , :a:varargs ) ;
+%: c_stmt(:locals:alnum_s) {
+	fprintf ( :f:c_file_expr , :fmt:c_str_expr :a:maybe_varargs ) ;
 } -> {
 	printf :fmt :a > :f
 }
 
-%: c_stmt {
-	printf ( :fmt:c_str_expr , :a:varargs ) ;
+%: c_stmt(:locals:alnum_s) {
+	printf ( :fmt:c_str_expr :a:maybe_varargs ) ;
 } -> {
-	printf :fmt :a > :f
+	printf :fmt :a
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
     FILE * :file:alnum_s = :val:c_file_expr ;
 } -> {
 	:file=:val
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
     fclose ( :file:alnum_s ) ;
 } -> {
 	:file=""
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	FILE * :file:alnum_s = :val:fopen_expr {
-		:rest:c_stmts
+		:rest:c_stmts(:locals'`2)
 	}
 } -> {
 	:file=val
@@ -91,43 +96,43 @@
 	fclose(:file);
 }/
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	char * :var:alnum_s = malloc ( ) ;
 } -> {
 	:var=$(mktemp /tmp/XXXXXXXX.shvar)
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	free ( :var:alnum_s ) ;
 } -> {
 	rm "$var"
 }
 
-%: c_stmt {
-	if ( ! strcmp ( :a:c_str_expr , :b:c_str_expr ) ) {:body:c_stmts}
+%: c_stmt(:locals:alnum_s) {
+	if ( ! strcmp ( :a:c_str_expr , :b:c_str_expr ) ) {:body:c_stmts(:locals'`2)}
 } -> {
 	test :a = :b && {:body}
 }
 
-%: c_stmt {
-	if (:a:explicit_c_int_expr == :b:explicit_c_int_expr) {:body:c_stmts}
+%: c_stmt(:locals:alnum_s) {
+	if (:a:explicit_c_int_expr == :b:explicit_c_int_expr) {:body:c_stmts(:locals'`2)}
 } -> {
 	test :a -eq :b && {:body}
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	char * :var:alnum_s = :val:c_str_expr;
 } -> {
 	:var=:val
 }
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	int :var:alnum_s = :val:explicit_c_int_expr;
 } -> {
 	:var=:val
 } 
 
-%: c_stmt {
+%: c_stmt(:locals:alnum_s) {
 	«`»:cmd:inline_cmd«`»;
 } -> {
 	:cmd 
@@ -138,8 +143,8 @@
 %: str_expr {:v:alnum_s} -> {"$:v"}
 %: [meta] type str_expr_list = list of {::str_expr} separated by {::delete(,)} .
 
-%: c_stmt {
-	for ( char * :var:alnum_s : {:list:str_expr_list} ) {:body:c_stmts}
+%: c_stmt(:locals:alnum_s) {
+	for ( char * :var:alnum_s : {:list:str_expr_list} ) {:body:c_stmts(:locals'`2)}
 } -> {
 	for :var in :list '
 `   do '
@@ -155,8 +160,8 @@
 %: step_op(:var:alnum_s) {:var -= :s:int} -> {::m5cl(-:s)}
 %: cmp_op {>=}
 %: cmp_op {<=}
-%: c_stmt {
-	for ( int :var:alnum_s = :a:explicit_c_int_expr ; :var ::cmp_op :z:explicit_c_int_expr ; :step:step_op(:var) ) {:body:c_stmts}
+%: c_stmt(:locals:alnum_s) {
+	for ( int :var:alnum_s = :a:explicit_c_int_expr ; :var ::cmp_op :z:explicit_c_int_expr ; :step:step_op(:var) ) {:body:c_stmts(:locals'`2)}
 } -> {
 	for :var in $(seq :a :step :z)'
 `   do '
@@ -164,9 +169,11 @@
 `   done'
 `}
 
+%: c_stmts_locals {}
+
 %: {
     '` #include <string.h> '`
-    '` int main ( int argc , char * * argv ) '{` :contents:c_stmts '}`
+    '` int main ( int argc , char * * argv ) '{` :contents:c_stmts(c_stmts_locals) '}`
 } -> {
 	:contents
 }

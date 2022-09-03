@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/m5 | bash
 
 # ffmpegh is a ffmpeg helper, written in "bashy c"
 
@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 {
     if (!strcmp(argv[1], ""))
 	{
-		`echo "Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>"`;
+		printf("Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>\n");
 		`exit`;		
 	}
 

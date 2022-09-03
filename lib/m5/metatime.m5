@@ -134,6 +134,14 @@
    :rest
 }
 
+%: metatime_eval(append string :value:alnum_s to string :name:alnum_s.:rest:continue_eval) -> {
+   %: -> {
+      %: (undefine) :name {}
+      %: :name -> {«::»:name«::»:value}
+   }
+   :rest
+}
+
 %: metatime_eval(append :value:c_quote_value to string :name:alnum_s.:rest:continue_eval) -> {
    %: -> {
       %: (undefine) :name {}

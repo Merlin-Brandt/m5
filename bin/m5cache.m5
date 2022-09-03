@@ -13,5 +13,5 @@ int main(int argc, char **argv)
    `then`;
 	   `cat "$m5_src_file" | m5 > "$compiled_file"`;    
    `fi`;
-    `cat "$compiled_file"`;
+    `echo "$compiled_file"`;
 }
