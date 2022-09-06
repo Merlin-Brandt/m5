@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#while read line
+#do
+#  echo "$line" | m5 | bash
+#done 
+
+cat $(m5cache $(realpath "$1")) | m5 | bash

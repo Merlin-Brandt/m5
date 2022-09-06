@@ -1,4 +1,4 @@
-#!/usr/local/bin/m5 | bash
+#!/usr/local/bin/m5bash
 
 # ffmpegh is a ffmpeg helper, written in "bashy c"
 
@@ -21,7 +21,7 @@
 
       
       test "$1" = "" && {
-		echo "Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>"
+		printf "Usage: ffmpegh attach[_thumbnail] <thumbnail> <video>\n" 
 		exit		
 	}
 

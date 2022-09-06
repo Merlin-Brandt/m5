@@ -171,11 +171,15 @@
 
 %: c_stmts_locals {}
 
-%: {
+%: transpile_bashy_c {
     '` #include <string.h> '`
     '` int main ( int argc , char * * argv ) '{` :contents:c_stmts(c_stmts_locals) '}`
 } -> {
 	:contents
 }
+
+%: transpile_bashy_c {::c_stmts(c_stmts_locals)}
+
+%: {::transpile_basy_c}
 
 }/remove_comments/

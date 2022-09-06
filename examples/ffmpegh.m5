@@ -1,4 +1,4 @@
-#!/usr/local/bin/m5 | bash
+#!/usr/local/bin/m5bash
 
 # ffmpegh is a ffmpeg helper, written in "bashy c"
 
