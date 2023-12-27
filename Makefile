@@ -6,7 +6,7 @@ all: build
 
 bin/$(target): src/main.rs
 	mkdir -p bin
-	cargo build --release
+	cargo +nightly build --release
 	mv target/release/m5 bin/$(target)
 
 .PHONY: test
@@ -17,7 +17,7 @@ test:
 build:
 	touch src/main.rs
 	mkdir -p bin
-	cargo build --release
+	cargo +nightly build --release
 	mv target/release/m5 bin/$(target)
 
 .PHONY: clean
